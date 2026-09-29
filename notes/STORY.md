@@ -20,7 +20,7 @@ nothing.
 | # | Beat | Section file | Evidence status |
 |---|---|---|---|
 | 1 | Setting: billion-node graph, two-tower GNN retrieval, contrastive training | `03_setting.tex` | ready |
-| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready (mini measurement + full-scale logs); direct locality curve missing, see risk 1 |
+| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready: direct measurement at full scale, 2 seeds (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`); learned-vs-architectural control not run |
 | 3 | Observation: exposure negatives, the conventional industry source, hurt; why | `05_exposure.tex` | effect ready (one pair); the *why* is pending the random-substitute control, see risk 2 |
 | 4 | Idea: cluster anchors by embedding to mine negatives; cached asynchronously it is almost free | `06_clustered_mining.tex` | quality: 2 seeds at 2 epochs + 1 seed at 3 epochs, third seed running; cost ready |
 | 5 | Concentration cuts both ways: regional forgetting | `07_concentration_capping.tex` | ready on public graphs; absent internally by construction |
@@ -54,11 +54,12 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 
 ## Risks and open decisions
 
-1. **The locality observation is indirect.** We measure that clustering by embedding groups
-   anchors that share neighbourhoods, but there is no direct "embedding similarity vs hop
-   distance" curve. A cheap figure would fix it: cosine similarity of the random-trained
-   full-scale model for pairs at hop 1, 2, 3 and random pairs. It is a strong candidate for
-   Figure 1 of the introduction.
+1. **Locality: measured directly (2026-09-28 evening).** Cosine in the query space 0.704 / 0.623 /
+   0.446 at exactly 1 / 2 / 3 hops vs 0.072 for random users; future friends 0.605; two seeds agree
+   to 0.001; degree-matched gaps +0.63 / +0.55 / +0.37 (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`,
+   figure copied to `figures/locality.pdf`). Remaining gap: whether the locality is learned or comes
+   from the encoder aggregating overlapping neighbourhoods. An untrained-model control through the
+   same inference separates the two; it needs one evaluator-sized inference job.
 2. **The "why" of exposure harm is not established.** There are three open hypotheses:
    delayed or censored positives, candidates broadcast to every query in the batch, and extra
    negative pressure coupled with frequency correction. The random-substitute control is
@@ -82,6 +83,39 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
    These two fit together, but the introduction must not blur them.
 6. **No online A/B result exists.** An applied-track reviewer will ask. Decide whether the
    paper says so or targets a deployment.
+
+## Decisions, 2026-09-28 evening (user)
+
+- **Exposure "why": assume it pans out.** The random-substitute control and the mechanism work run
+  in a separate session. Write the exposure section as if the control separates the hypotheses;
+  replace the placeholders when that session reports.
+- **Online A/B: use it.** GTv17 A/B, segment "GTv17 A/B" (ID 225237), 2026-09-17 to 2026-09-26,
+  control "GT random negative sc..." (Exp 2) vs. GTv17 (Exp 3, 50%). Numbers to refine later:
+
+  | Metric | Change | Note |
+  |---|---:|---|
+  | New friends made with bidirectional communication | +2.09% +/- 0.29% | 0.205 -> 0.209, q < 0.001 |
+  | New friends made | +1.01% +/- 0.23% | 0.799 -> 0.807, p < 0.001 |
+  | Active days with new friends made with bidirectional communication | +1.23% +/- 0.12% | q < 0.001 |
+  | New friends made with bidirectional Snap | +0.97% +/- 0.41% | q < 0.001 |
+  | Active days with new friends made | +0.51% +/- 0.07% | q < 0.001 |
+  | Friend adds seen by recipient | ~+0.5% | 5.737 -> 5.768; +3.836M rollout impact |
+  | Active days with friend adds sent | +0.23% +/- 0.05% | q < 0.001 |
+  | Significant friending metrics | 41 positive, 17 negative | |
+
+  **Attribution caveat.** The treatment description reads "Scale up batch-size, remove exposure
+  negatives, and enable PPR tokens training with NGAME hard negative mi...". It bundles four
+  changes, and its hard-negative mining is the NGAME source-batched scheme, which the manuscript
+  excludes (2026-09-25). The paper's clustered-anchor mining is not what shipped. The A/B can
+  support "removing exposure negatives and adding batch-level hard negatives moved production
+  metrics", not "our method gained +2.09%". Wording to settle before the intro uses it.
+- **Citation2 metric: present both.** Headline the full-corpus number (the positive ranked against
+  all 2.9M candidates, the harder and more principled measurement) and report the official OGB
+  sampled MRR next to it, with one sentence on why they differ. Recommendation: apply the same rule
+  to all three public datasets (headline the dataset's own metric computed against the full
+  corpus, official sampled protocol in the next column), so the choice cannot look picked per
+  dataset. For Collab and LiveJournal, check which full-corpus versions exist in the saved results.
+- **Locality observation: measure it directly** (study `V/lab13-internal-evidence/embedding-locality-r1/`).
 
 ## Excluded from the manuscript (user decisions)
 

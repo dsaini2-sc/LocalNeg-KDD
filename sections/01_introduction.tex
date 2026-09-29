@@ -24,11 +24,11 @@ this scale so is its cost: every negative must be encoded from its sampled neigh
 % P3 -- The observation: embeddings already know the graph.
 We start from an observation about a model trained with random negatives only: its
 embedding space already follows the graph.
-\todo{Nodes that are close in the graph are close in embedding space (Figure~\ref{fig:locality}, to be measured: similarity vs.\ hop distance). Clustering anchors by embedding therefore puts graph neighbours in the same batch: anchors share 2$\times$ more one-hop neighbours and positives sit within one hop of another anchor 3$\times$ more often than in random batches.}
+\todo{Nodes that are close in the graph are close in embedding space (Figure~\ref{fig:locality}): cosine similarity 0.70 at one hop, 0.45 at three, 0.07 for random users; a user's one-hop neighbours are even closer to the user than the user's future friends. Clustering anchors by embedding therefore puts graph neighbours in the same batch: anchors share 2$\times$ more one-hop neighbours and positives sit within one hop of another anchor 3$\times$ more often than in random batches.}
 Two consequences follow. In-batch negatives drawn from the same region are harder than random
 ones, and the batch's sampled subgraph shrinks because neighbourhoods overlap.
 \todo{$-$35\% sampled nodes per batch; 12--15\% faster training steps at full scale.}
-\evidence{small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
+\evidence{embedding-locality-r1/READ.md; small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
 
 % P4 -- The method and the internal result.
 \todo{Clustered-anchor batching: cluster anchors by their current embedding, fill each batch from a few clusters, refresh clusters every 50 updates from a cache the training loop already fills. Result at full scale: +1.7\pp{} macro \recall{1000} over random (+5\% relative), consistent across three seeds; the cached version keeps the gain and trains 7\% faster than random negatives, including the one-time cache bootstrap.}
