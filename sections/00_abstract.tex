@@ -6,9 +6,10 @@ nothing, so the harm lies in which users are exposed. We start instead from the 
 embeddings, learned with random negatives only, are graph-local: one-hop neighbours average a cosine similarity of 0.70
 with a user, random users 0.07. Clustering anchors on these embeddings therefore yields hard in-batch negatives and
 batches that sample 35\% fewer nodes. With the clustering signal cached from training itself, clustered batching raises
-macro recall@1000 by 1.6--1.7 points at full scale while using 7\% fewer GPU-hours than random batching, and the
+macro recall@10 by 18--20\% and recall@1000 by 5\% at full scale while using 7\% fewer GPU-hours than random batching, and the
 deployed model increased new friends made with bidirectional communication by 2.09\% in an online A/B test. The same
 concentration can fail: on Collab, Citation2 and LiveJournal, uncapped clustered batches collapse onto single clusters
-and end 8--34 points of recall@1000 below random training. A per-cluster row cap prevents the collapse in every seed,
+and end far below random training on each benchmark's metric (Collab Hits@50 53.6 to 16--19). A per-cluster row cap
+prevents the collapse in every seed and ends ahead of random training,
 and the concentration of the uncapped plan shows in advance whether a graph needs it.
 \end{abstract}

@@ -31,8 +31,9 @@ clustered training step is 12--15\% faster at full scale (Section~\ref{sec:local
 Clustered-anchor batching turns this property into a training signal. Every 50 updates, the anchors of the next window
 are clustered by their query embeddings and each batch is built from a few clusters. The embeddings come from a cache
 that the training loop fills as a by-product, and the clustering runs on the CPU while the GPU trains. On the
-production graph, clustered batching raises macro recall@1000 from 34.8\% to 36.4--36.5\% after three epochs, a gain of
-1.6--1.7 points, consistent across three seeds. The cached version trains on 7\% fewer
+production graph, after three epochs, clustered batching raises macro recall at 10, 100, 500 and 1000 from 2.70\%, 12.2\%,
+26.7\% and 34.8\% to 3.20--3.24\%, 13.6--13.7\%, 28.4--28.5\% and 36.4--36.5\%: relative gains of 18--20\%, 11--12\%,
+6--7\% and 5\%, consistent across three seeds. The cached version trains on 7\% fewer
 GPU-hours than random batching, including the one-time pass that fills the cache (Section~\ref{sec:method}). In a
 ten-day online A/B test, the deployed model, trained with this mining and without exposure negatives, increased new
 friends made with bidirectional communication by 2.09\%.
@@ -40,11 +41,13 @@ friends made with bidirectional communication by 2.09\%.
 
 The concentration that makes clustered batches informative can also make them harmful. When a few clusters hold far
 more positive rows than the rest, the scheduler fills whole batches, and runs of batches, from one region. The model
-then fits that region and forgets the others: on Collab, Citation2 and LiveJournal, uncapped clustered mining ends its
-mining phase 8 to 34 points of recall@1000 below random training, and its late batches are drawn from a single cluster
-(Section~\ref{sec:public}). A per-cluster row cap bounds the rows any one cluster may contribute to a batch. It removes
-the collapse on all three graphs in every seed: capped mining stays within half a point of random at recall@1000, and
-raises full-corpus MRR on Citation2 and LiveJournal. Whether a graph needs the cap is visible in how concentrated its
+then fits that region and forgets the others. On Collab, Citation2 and LiveJournal, uncapped clustered mining ends its
+mining phase far below random training on each benchmark's own metric: Collab's Hits@50 falls from 53.6 to 16--19, and
+full-corpus MRR ($\times 100$) from 7.6 to 3.4--4.4 on Citation2 and from 15.2 to 11.6--12.4 on LiveJournal. Its late
+batches are drawn from a single cluster (Section~\ref{sec:public}). A per-cluster row cap bounds the rows any one
+cluster may contribute to a batch. It removes the collapse on all three graphs in every seed, and capped mining ends
+ahead of random training: Hits@50 on Collab rises by 1.0--1.2 points, and full-corpus MRR by 0.2 on Citation2 and 0.5
+on LiveJournal. Whether a graph needs the cap is visible in how concentrated its
 uncapped batches become. Our production graph sits at the safe end, because data preparation keeps at most four
 positives per user; there the cap is neutral, and the deployed model runs with it at no cost (Section~\ref{sec:capping}).
 
@@ -54,8 +57,8 @@ Our contributions are:
         makes embedding-clustered batches both harder and cheaper to train on.
   \item Evidence that exposure negatives, the conventional industry source of hard negatives, hurt retrieval on this
         graph, with a slot-matched random control showing that the harm lies in the identity of the exposed users.
-  \item Clustered-anchor mining with a cached clustering signal: +1.6 to +1.7 points of macro recall@1000 over random
-        batching at full scale, at 7\% lower training cost.
+  \item Clustered-anchor mining with a cached clustering signal: over random batching at full scale, +18--20\% relative
+        macro recall@10 and +5\% at recall@1000, at 7\% lower training cost.
   \item An online A/B test of the deployed model: +2.09\% new friends made with bidirectional communication and
         +1.01\% new friends made.
   \item A failure mode of clustered mining, regional forgetting under concentrated batches, and a per-cluster row cap
