@@ -57,5 +57,6 @@ The same concentration that makes clustered batches informative can also make th
   \item \todo{An observation, measured on a billion-node graph: random-trained embeddings are graph-local, which makes embedding-clustered batches both harder and cheaper to train on.}
   \item \todo{Evidence that exposure negatives, the conventional industry source, hurt retrieval on this graph, with a controlled analysis of why.}
   \item \todo{Clustered-anchor mining with a cached clustering signal: +1.7\pp{} macro \recall{1000} over random at full scale, at lower training cost than random negatives.}
+  \item \todo{An online A/B test of the deployed model (cached, capped clustered mining, no exposure negatives): +2.09\% new friends made with bidirectional communication, +1.01\% new friends made.}
   \item \todo{A failure mode of clustered mining, regional forgetting under concentrated batches, and a per-cluster row cap that prevents it, with a concentration statistic that predicts when it is needed; validated on Collab, Citation2 and LiveJournal.}
 \end{itemize}

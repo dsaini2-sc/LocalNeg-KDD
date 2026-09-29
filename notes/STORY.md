@@ -116,6 +116,16 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
   dataset. For Collab and LiveJournal, check which full-corpus versions exist in the saved results.
 - **Locality observation: measure it directly** (study `V/lab13-internal-evidence/embedding-locality-r1/`).
 
+## Decisions, 2026-09-28 ~22:15 PT (user)
+
+- **Shipped model = async cached capped.** The production NGAME model in the A/B is the cached,
+  asynchronous, capped variant, so "capping is neutral on this graph and we run it enabled" is true.
+- **The A/B is its own contribution bullet.**
+- **NGAME in the introduction or only in related work: decide later.** Open.
+- **Public replicates:** two more seeds of the five arms (random, fresh/cached x uncapped/capped) on
+  Collab, Citation2 and LiveJournal, then check the new seeds against the recorded single-seed numbers.
+  The capping paragraphs will draw on this one consistent set of runs.
+
 ## Excluded from the manuscript (user decisions)
 
 - Source-batched NGAME runs, including the M0 result and the M11 internal arm built on the M0
