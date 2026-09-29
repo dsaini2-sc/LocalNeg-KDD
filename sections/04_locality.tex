@@ -1,6 +1,9 @@
 \section{Embeddings Already Know the Graph}
 \label{sec:locality}
-% Observation 1. Measured on a model trained with random negatives only.
+
+We begin with a model trained with random negatives only, the production default, and ask how its embedding space
+relates to the graph it was trained on. The answer motivates everything that follows: the space is organised by graph
+neighbourhood, so grouping users by embedding also groups them by graph region.
 
 \begin{figure}[t]
   \centering
@@ -11,9 +14,55 @@
 \end{figure}
 
 \subsection{Similar embeddings, nearby nodes}
-\todo{Prose. Figure~\ref{fig:locality}: cosine 0.70 at one hop, 0.62 at two, 0.45 at three, 0.07 for random users; gaps over degree-matched random users +0.63 / +0.55 / +0.37; seeds agree to 0.001. One-hop neighbours are more similar to a user than the user's own future friends (0.70 vs.\ 0.61): non-positive neighbours look like positives, which is why same-region negatives are hard. Caveat to address: learned vs.\ architectural (untrained-model control not run). Supporting: clustering anchors by embedding raises hop-1 nodes shared by two or more roots from 2.2\% to 4.7\%, and positives within one hop of another batch anchor from 0.9\% to 2.6\%.}
-\evidence{embedding-locality-r1/READ.md; small-graph/batch-locality-r1/analysis/READ.md}
+\label{sec:locality:measure}
 
-\subsection{Locality makes batches cheaper}
-\todo{Sampled nodes per batch $-$35.1\% (anchor grouping $-$28.2 points, embedding locality $-$6.9 on top); roots $-$24.6\%; per training step nodes $-$22.7\%, sequences $-$16.3\%. Full scale: 917,794 vs.\ $\sim$700k sampled nodes; median step 4.40\,s vs.\ 3.60\,s. Scope as node-level encoder work.}
-\evidence{batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
+We sample 20{,}000 users from the evaluation panel and, for each, up to five targets at each exact graph distance of
+one, two and three hops, five random users, and the user's own future friends. Distances are exact on the full graph:
+two-hop targets share a neighbour with the user and are not adjacent to it; three-hop targets share none. We compare
+the users with their targets by cosine similarity in the query embedding space, the space the clustering of
+Section~\ref{sec:method} uses, for two random-negative models trained to three epochs from different seeds.
+
+Similarity falls steadily with graph distance (Figure~\ref{fig:locality}). One-hop neighbours average a cosine of
+0.704, two-hop targets 0.623, three-hop targets 0.446, and random users 0.072; the two seeds agree to within 0.001.
+Graph walks favour well-connected nodes, so we also subtract, for every pair, the mean similarity of random users of
+the same degree (log$_2$ bins): the gaps are $+0.63$, $+0.55$ and $+0.37$, so degree does not explain the effect. A
+one-hop pair is more similar than a random pair 98.9\% of the time, a three-hop pair 92.9\% of the time.
+
+The reference line in Figure~\ref{fig:locality} is the more telling number. A user's future friends, the positives the
+model is trained to retrieve, average 0.605, below the user's existing one-hop neighbours. To the model, the user's
+graph neighbourhood looks at least as much like a positive as the positives do. Negatives drawn from that neighbourhood
+are therefore hard, and random negatives, 0.53 below the positives on average, are not.
+\todo{Learned or architectural? The encoder pools sampled neighbourhoods, so part of the locality may exist before training. An untrained-model control through the same inference separates the two; not yet run.}
+\evidence{embedding-locality-r1/READ.md}
+
+\subsection{Clustering by embedding gathers neighbourhoods into a batch}
+\label{sec:locality:batch}
+
+A training example is a positive row, a user paired with one future friend; each user contributes one to four rows,
+two on average. We measure what happens when 2{,}048-row batches are formed by clustering users on the
+random-trained model's query embeddings, as the trainer does, rather than drawn at random. The measurement uses a
+13.3M-node sample of the production graph and the trainer's own neighbourhood sampler.
+\todo{Say that the mini graph is a sample of the production graph with the same positive cap; one sentence on how it was drawn.}
+
+Clustered batches bring whole regions of the graph together. The share of a batch's sampled one-hop nodes that are
+reached from two or more batch roots doubles, from 2.2\% to 4.7\%. The users' positives come along: the share of
+positives within one hop of \emph{another} anchor in the batch triples, from 0.9\% to 2.6\%, and the positives'
+pairwise similarity doubles, from 0.017 to 0.033. The in-batch negatives each anchor sees are therefore drawn from its
+own region more often than chance.
+
+\subsection{Locality makes batches cheaper to encode}
+\label{sec:locality:cost}
+
+The encoder first projects every node of the batch's sampled subgraph and then runs one transformer sequence per root,
+so the cost of a batch scales with its distinct sampled nodes and its distinct roots. Clustering cuts both. Because a
+cluster keeps each user's rows together, a batch holds about half as many distinct anchors (2{,}012 to 1{,}022), and
+roots fall by 24.6\%. Because clustered users share neighbours, their sampled neighbourhoods overlap, and sampled nodes
+fall by 35.1\% per batch (441{,}461 to 286{,}525, medians). Grouping each user's rows accounts for 28.2 points of that
+saving and neighbourhood overlap for the remaining 6.9. Each training step also encodes a random-negative subgraph that
+clustering does not touch; per step, node-level work falls by 22.7\% and the number of sequences by 16.3\%.
+
+The production trainers show the same effect. At full scale a random batch samples 917{,}794 nodes, a clustered batch
+687{,}000 to 754{,}000, and the median time between batches drops from 4.40\,s to 3.60\,s, while the random-negative
+subgraph is unchanged at about 53{,}500 nodes in every arm. Over a full run, clustered training steps are 12--15\%
+faster than random ones (Section~\ref{sec:method:cost}).
+\evidence{small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}

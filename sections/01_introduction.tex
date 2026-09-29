@@ -31,8 +31,16 @@ ones, and the batch's sampled subgraph shrinks because neighbourhoods overlap.
 \evidence{embedding-locality-r1/READ.md; small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
 
 % P4 -- The method and the internal result.
-\todo{Clustered-anchor batching: cluster anchors by their current embedding, fill each batch from a few clusters, refresh clusters every 50 updates from a cache the training loop already fills. Result at full scale: +1.7\pp{} macro \recall{1000} over random (+5\% relative), consistent across three seeds; the cached version keeps the gain and trains 7\% faster than random negatives, including the one-time cache bootstrap.}
-\evidence{full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md; full-scale-replicates/evaluation/analysis/READ.md; analysis-overhead/READ.md}
+We turn this locality into a training signal. Clustered-anchor batching groups the anchors of each training window by
+their current query embedding and builds every batch from a few clusters, so each anchor's in-batch negatives come
+from its own region of the graph. The clustering signal is cached from embeddings the training loop computes anyway
+and planned on the CPU while the GPU trains. On the production graph, clustered batching raises macro \recall{1000}
+from 34.8\% to 36.4--36.5\% after three epochs (+1.6 to +1.7 points, about 5\% relative), and the cached version
+trains on 7\% fewer GPU-hours than random batching, including the one-time pass that fills the cache.
+In a ten-day online A/B test, NGAME-style hard-negative mining trained without exposure negatives increased new
+friends made with bidirectional communication by 2.09\%.
+\todo{Finalise with three seeds.}
+\evidence{full-scale-replicates/evaluation/analysis/READ.md; analysis-overhead/READ.md; abconsole GTv17 A/B}
 
 % P5 -- The catch: concentration cuts both ways.
 The same concentration that makes clustered batches informative can also make them harmful.

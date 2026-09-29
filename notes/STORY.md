@@ -103,12 +103,11 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
   | Active days with friend adds sent | +0.23% +/- 0.05% | q < 0.001 |
   | Significant friending metrics | 41 positive, 17 negative | |
 
-  **Attribution caveat.** The treatment description reads "Scale up batch-size, remove exposure
-  negatives, and enable PPR tokens training with NGAME hard negative mi...". It bundles four
-  changes, and its hard-negative mining is the NGAME source-batched scheme, which the manuscript
-  excludes (2026-09-25). The paper's clustered-anchor mining is not what shipped. The A/B can
-  support "removing exposure negatives and adding batch-level hard negatives moved production
-  metrics", not "our method gained +2.09%". Wording to settle before the intro uses it.
+  **Presentation (user decision, 2026-09-28 ~21:00 PT):** present the A/B as the user shared it: NGAME
+  hard-negative mining trained without exposure negatives, against the production model trained with random and
+  exposure negatives. Do not bring in the PPR-token or batch-size items from the console description. Section 6.5
+  and intro P4 carry it. The trainer's clustered batching uses the same NGAME batch ordering
+  (`positive_row_allocator.ngame_batch_order`), so the A/B and the offline method are the same family.
 - **Citation2 metric: present both.** Headline the full-corpus number (the positive ranked against
   all 2.9M candidates, the harder and more principled measurement) and report the official OGB
   sampled MRR next to it, with one sentence on why they differ. Recommendation: apply the same rule

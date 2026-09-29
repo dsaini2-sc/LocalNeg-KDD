@@ -1,13 +1,105 @@
 \section{Mining Negatives from Embedding Clusters}
 \label{sec:method}
 
+Section~\ref{sec:locality} shows that users who are close in embedding space are close in the graph, and that a
+user's graph neighbours look like positives to the model. Clustered batching turns both facts into a training signal:
+if a batch is built from a few clusters of similar users, every anchor's in-batch negatives come from its own region,
+and the batch is cheaper to encode.
+
 \subsection{Clustered-anchor batching}
-\todo{Cluster anchors by the current query embedding (node-cluster target 64); fill each batch from few clusters so in-batch negatives are regional; 50-update refresh windows; random negatives kept.}
+\label{sec:method:batching}
+
+Training proceeds in windows of 50 updates. At the start of a window, each worker takes the positive rows it will
+train on in that window (102{,}400 rows at 2{,}048 rows per batch), clusters their distinct anchors by query
+embedding into balanced clusters of about 64 anchors with recursive two-means, and packs the clusters into batches
+following NGAME's batch ordering~\cite{dahiya2023ngame}, targeting 16 clusters per batch. All rows of an anchor stay
+in its cluster, so an anchor's positives train together. Random negatives are kept (512 per worker, 8{,}192 per step),
+as is the frequency correction of the loss. The first 200 updates of every run use random batches; clustering starts
+from that shared prefix model.
+\todo{Check the prefix length against the warm-start rule: clustering needs a converged random phase. State why 200 updates suffice at full scale.}
 
 \subsection{A cached clustering signal}
-\todo{The training loop already computes query embeddings; cache them and re-cluster asynchronously; one-time bootstrap. Cost: $-$7\% GPU time vs.\ random including the bootstrap ($-$15\% without); fresh re-embedding +13\%.}
+\label{sec:method:cache}
+
+Clustering needs a current query embedding for every anchor of the next window. Computing them fresh means an
+inference pass over the window's anchors every 50 updates, on the GPU and on the critical path. We instead keep a
+cache of query embeddings that the training loop fills as a by-product: every training step already computes the
+query embeddings of its anchors, and we store them. A CPU thread clusters the next window from a snapshot of the
+cache while the GPU trains on the current one, so gradients always use current embeddings and only the batch
+assignment uses cached ones. A single inference pass with the prefix model fills the cache before the first clustered
+window.
+
+\subsection{Cost}
+\label{sec:method:cost}
+
+\begin{table}[t]
+  \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs, one seed). Mining and bootstrap
+  inference are charged to the method; checkpoint I/O and evaluation are excluded.}
+  \label{tab:cost}
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    & Random & Fresh clustered & Cached clustered \\
+    \midrule
+    Seconds per update, training steps only & 4.74 & 4.18 & 4.04 \\
+    Exposed mining (s, whole run) & 23 & 18{,}200 & 47--57 \\
+    Bootstrap inference (s) & 0 & 0 & 5{,}641 \\
+    Total GPU-hours & 326 & 369 & 303 \\
+    Relative to random & -- & +13.0\% & $-$7.0\% \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Because clustered batches are cheaper to encode (Section~\ref{sec:locality:cost}), clustered training steps are
+12--15\% faster than random ones: 4.74\,s per update for random batches, 4.18\,s for fresh clustering and 4.04\,s for
+cached clustering (Table~\ref{tab:cost}). Fresh clustering gives the saving back and more: its inference pass costs
+54\,s every 50 updates, 22\% of its training loop, so it costs 13\% more GPU time than random training. The cached
+version exposes 47--57\,s of planning over the whole run, 0.1\% of loop time, and after charging it the one-time
+bootstrap pass of 5{,}641\,s, it costs 7\% less GPU time than random training, 15\% less without the bootstrap. The
+bootstrap is 8\% of a three-epoch run and amortises with longer training. Full-state checkpoints are larger, because
+the 2.7\,GB per-worker cache is part of the resumable state (95\,s vs.\ 37\,s per save).
+\todo{Replicate the cost numbers on seeds 1504 and 1505 once their trainers finish; state the one-seed caveat until then.}
 \evidence{full-scale-cached-mining/analysis-overhead/READ.md; PAPER-NOTE.md}
 
-\subsection{Results on the production graph}
-\todo{Table: random vs.\ fresh/cached $\times$ uncapped/capped at 1, 2, 3 epochs, mean $\pm$ sd over seeds 1504--1506. Current: 3 epochs (seed 1506) random 34.78 vs.\ 36.38--36.53; 2 epochs (2 seeds) random 34.08 vs.\ 35.74--35.90. Cached within $\sim$0.1\pp{} of fresh. Capped vs.\ uncapped within noise, forward-reference Section~\ref{sec:capping}. No best-checkpoint selection.}
-\evidence{checkpoint-evaluation-r2/analysis-final/READ.md; full-scale-replicates/evaluation/analysis/READ.md}
+\subsection{Retrieval quality on the production graph}
+\label{sec:method:results}
+
+\begin{table}[t]
+  \caption{Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean $\pm$ s.d.\
+  over seeds ($n$ in parentheses). All arms share a 200-update random prefix; epochs count the updates after it.}
+  \label{tab:internal}
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    Method & 1 epoch & 2 epochs & 3 epochs \\
+    \midrule
+    Random & 32.19 $\pm$ 0.13 (3) & 34.08 $\pm$ 0.01 (2) & 34.79 $\pm$ 0.01 (2) \\
+    Fresh clustered & 34.24 $\pm$ 0.20 (2) & 35.90 $\pm$ 0.06 (2) & 36.47 (1) \\
+    Cached clustered & 34.03 $\pm$ 0.11 (2) & 35.79 $\pm$ 0.03 (2) & 36.38 (1) \\
+    Fresh clustered, capped & 34.06 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.01 (2) & 36.53 (1) \\
+    Cached clustered, capped & 33.84 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.00 (2) & 36.44 (1) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Clustered batching improves retrieval at every point of training (Table~\ref{tab:internal}). After three epochs,
+random training reaches 34.79\% macro recall@1000 and clustered training 36.38--36.53\%, a gain of 1.6--1.7 points,
+or 4.6--5.0\% relative. The gain is present from the first epoch (1.7--2.1 points) and does not close as training
+continues. The cached clustering signal costs almost nothing in quality: cached and fresh clustering differ by at most
+0.22 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within 0.2 points
+of the uncapped arm at every point. The seeds agree closely: at two epochs every arm's standard deviation is at most
+0.06 points, well below the gap to random. We report the final model of every run; no checkpoint is selected.
+\todo{Replace with the three-seed table (seeds 1504--1506) when seed 1505 finishes; add recall@\{10,100,500\} and MRR to the appendix.}
+\evidence{full-scale-replicates/evaluation/analysis/READ.md; full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md}
+
+\subsection{Online A/B test}
+\label{sec:method:online}
+
+We tested NGAME-style hard-negative mining, trained without exposure negatives, against the production model, trained
+with random and exposure negatives, in a ten-day online A/B test of friend recommendation (September 17--26, 2026).
+\todo{Traffic share, number of users, which retrieval stage the embeddings serve.}
+New friends made rose by 1.01\% ($\pm$0.23\%), and new friends made with bidirectional communication, our
+headline friending metric, by 2.09\% ($\pm$0.29\%); active days with such a new friend rose by 1.23\%
+($\pm$0.12\%). Of the friending metrics that moved significantly, 41 improved and 17 declined.
+\todo{Name the declining metrics or state that none are guardrails; refine all numbers against the final read.}
+\evidence{abconsole FRND\_QA\_EBR, segment GTv17 A/B (ID 225237), Exp 3 vs.\ Exp 2}
