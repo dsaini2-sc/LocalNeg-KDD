@@ -21,6 +21,19 @@ planner exposes under 60\,s over the whole run and runs its clustering (1{,}600-
 Full-state checkpoints of the cached arms are larger because the 2.7\,GB per-worker cache is part of the resumable state.
 \input{tables/app_cost}
 
+\subsection{Cost of index-based mining}
+\label{app:ance}
+We estimate what ANCE-style mining~\cite{xiong2021ance} would cost on the production graph, from measured components only; we did not
+run it. Batches are random, each training row gets one negative mined from a nearest-neighbour index of the current model, and the index
+is refreshed once per epoch. Each refresh re-embeds the index corpus and the 104M training sources at the rate the cache bootstrap measured,
+16{,}275 users per second on 16 A100s: 877 GPU-hours over three refreshes for an index of all 966M users, 155 for the 85.3M-user evaluation
+universe. One extra encoded negative per row makes each step about 27\% slower. Adding the stored exposure negative, present for 57\% of
+sources, raised trainer wall time by 15.6\%, and a linear model of step time in sampled nodes fitted to the four full-scale arms gives
+14--31\% for the footprint of one negative. The steps therefore cost about 415 GPU-hours against random batching's 326, and the batches
+are random, so none of the clustered-step saving applies. In total that is about 1{,}290 GPU-hours with an index of all users,
+4.0 times random training, and 570 with the restricted index, 1.75 times; cached clustered batching uses 303, 0.93 times. Index build,
+search and hosting are excluded, and more frequent refreshes, as ANCE uses, raise the re-embedding cost proportionally.
+
 \subsection{Exposure negatives}
 Table~\ref{tab:app-exposure} gives every metric of the three exposure arms. The label audit behind Section~\ref{sec:exposure}: 0.512\% of
 stored exposure pairs coincide with requests accepted inside the training window, and 0.514\% are accepted in the following seven days.
