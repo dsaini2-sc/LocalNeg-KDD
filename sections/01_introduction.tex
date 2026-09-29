@@ -21,8 +21,9 @@ the 326 A100-hours of random training (Appendix~\ref{app:ance}).
 
 We start instead from a property of the model the production system already trains. In an embedding space learned
 with random negatives only, similarity follows the graph: a user's one-hop neighbours average a cosine similarity of
-0.70 with the user, three-hop users 0.45 and random users 0.07 (Figure~\ref{fig:locality}). A user's neighbours are even
-closer to the user than the friends the user will add next. Two consequences follow. Grouping users by embedding groups
+0.70 with the user, three-hop users 0.45 and random users 0.07 (Figure~\ref{fig:locality}). The structure is learned,
+within the first 50 updates; an untrained encoder barely shows it. A user's neighbours are even closer to the user than
+the friends the user will add next. Two consequences follow. Grouping users by embedding groups
 them by graph region, so each user's in-batch negatives come from its own neighbourhood and are hard. And because
 grouped users share neighbours, the batch's sampled subgraph shrinks: clustered batches sample 35\% fewer nodes, and a
 clustered training step is 12--15\% faster at full scale (Section~\ref{sec:locality}).

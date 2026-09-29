@@ -32,8 +32,16 @@ The reference line in Figure~\ref{fig:locality} is the more telling number. A us
 model is trained to retrieve, average 0.605, below the user's existing one-hop neighbours. To the model, the user's
 graph neighbourhood looks at least as much like a positive as the positives do. Negatives drawn from that neighbourhood
 are therefore hard, and random negatives, 0.53 below the positives on average, are not.
-\todo{Learned or architectural? The encoder pools sampled neighbourhoods, so part of the locality may exist before training. An untrained-model control through the same inference separates the two; not yet run.}
-\evidence{embedding-locality-r1/READ.md}
+
+The locality is learned rather than built into the encoder, even though the encoder pools each user's sampled
+neighbourhood. We repeated the measurement on the sampled graph of Section~\ref{sec:locality:batch} for one model at
+three stages: untrained, after 50 updates, and after 10 epochs of random-negative training (Appendix,
+Table~\ref{tab:app-locality}). Untrained, the encoder maps every user close to one direction: random pairs already average
+0.70, and one-hop neighbours sit only 0.06 above random users of the same degree, beating a random pair 65\% of the time.
+Fifty updates are enough to change that. Random pairs fall to 0.13 while one-hop neighbours stay at 0.79, a degree-matched
+gap of 0.66, and a one-hop pair beats a random pair 98.5\% of the time. After 10 epochs the sampled graph reproduces the
+full-scale pattern: 0.72, 0.56 and 0.40 at one, two and three hops against 0.07 for random users.
+\evidence{embedding-locality-r1/READ.md; embedding-locality-r1/mini-control/README.md}
 
 \subsection{Clustering by embedding gathers neighbourhoods into a batch}
 \label{sec:locality:batch}

@@ -20,7 +20,7 @@ nothing.
 | # | Beat | Section file | Evidence status |
 |---|---|---|---|
 | 1 | Setting: billion-node graph, two-tower GNN retrieval, contrastive training | `03_setting.tex` | ready |
-| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready: direct measurement at full scale, 2 seeds (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`); learned-vs-architectural control not run |
+| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready: direct measurement at full scale, 2 seeds (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`); learned-vs-architectural control done 2026-09-29: learned within 50 updates (untrained 1-hop gap +0.06 vs +0.66) |
 | 3 | Observation: exposure negatives, the conventional industry source, hurt; why | `05_exposure.tex` | effect ready (one pair); the *why* is pending the random-substitute control, see risk 2 |
 | 4 | Idea: cluster anchors by embedding to mine negatives; cached asynchronously it is almost free | `06_clustered_mining.tex` | quality: 2 seeds at 2 epochs + 1 seed at 3 epochs, third seed running; cost ready |
 | 5 | Concentration cuts both ways: regional forgetting | `07_concentration_capping.tex` | ready on public graphs; absent internally by construction |
