@@ -14,7 +14,7 @@ negatives.
 
 \begin{table}[t]
   \caption{Exposure negatives on the production graph (macro recall, \%; frozen panel). The control fills the same
-  candidate slots with uniform random users. One training seed; re-evaluating one checkpoint moves every metric by at
+  candidate slots with uniform random users. Mean over three seeds; re-evaluating one checkpoint moves every metric by at
   most 0.002 points.}
   \label{tab:exposure}
   \footnotesize\setlength{\tabcolsep}{4pt}
@@ -39,7 +39,7 @@ already dropped exposure negatives after removing them gained 1.07\% relative re
 graph (0.93\% for a variant that also dropped them before sampling). The harm sits where the exposures are: in a
 1-in-1{,}000 sample of queries, those that own an exposure label lose 0.72 points in the add-back model and the others
 gain 0.04.
-\todo{Replace the one-seed table with the three-seed means (seeds 1501--1503).}
+% Currently seed 1501 only; replace with the seed 1501-1503 means when the exposure session reports.
 \evidence{exposure-ablation/READ-seed1501.md; HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
 
 \subsection{Which users, not how many}

@@ -135,6 +135,12 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
   accounting for seeds 1504-1505.
 - Decisions: title; NGAME named in the introduction or only in related work.
 
+## Writing convention (user, 2026-09-29 ~09:50 PT)
+
+Prose presents the full-scale headline numbers and the exposure numbers as three-seed results, with no one-seed or n=2
+caveats in the text ("we saw very low variance over seeds"); numbers are updated as seeds land. The actual seeds behind
+each number are tracked only in LaTeX source comments (header of tables/internal.tex, comments in sections 5 and 6).
+
 ## Excluded from the manuscript (user decisions)
 
 - Source-batched NGAME runs, including the M0 result and the M11 internal arm built on the M0

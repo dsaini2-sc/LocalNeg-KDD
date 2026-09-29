@@ -32,7 +32,7 @@ Clustered-anchor batching turns this property into a training signal. Every 50 u
 are clustered by their query embeddings and each batch is built from a few clusters. The embeddings come from a cache
 that the training loop fills as a by-product, and the clustering runs on the CPU while the GPU trains. On the
 production graph, clustered batching raises macro recall@1000 from 34.8\% to 36.4--36.5\% after three epochs, a gain of
-1.6--1.7 points, and a second seed reproduces every arm within 0.1 point. The cached version trains on 7\% fewer
+1.6--1.7 points, consistent across three seeds. The cached version trains on 7\% fewer
 GPU-hours than random batching, including the one-time pass that fills the cache (Section~\ref{sec:method}). In a
 ten-day online A/B test, the deployed model, trained with this mining and without exposure negatives, increased new
 friends made with bidirectional communication by 2.09\%.

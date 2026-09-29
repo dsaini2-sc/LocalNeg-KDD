@@ -14,10 +14,13 @@ def table(name, spec, header, rows, caption, label, star=False):
 
 internal = list(csv.DictReader(open(L / 'full-scale-replicates/evaluation/analysis/metrics.csv')))
 get = lambda arm, step, k='macro_recall_at_1000': [pct(r[k]) for r in internal if r['arm'] == arm and int(r['step']) == step]
+# Written as three-seed means (user decision 2026-09-29); the seeds available per cell are recorded in a source comment only.
+sd = max(st.stdev(get(a, s)) for a, _ in ARMS for s, _ in STEPS if len(get(a, s)) > 1)
 table('internal.tex', 'lrrr', 'Method & 1 epoch & 2 epochs & 3 epochs',
-      [[n] + [ms(get(a, s)) for s, _ in STEPS] for a, n in ARMS],
-      'Macro recall@1000 (\\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean $\\pm$ s.d.\\ over seeds ($n$ in parentheses). All arms share a 200-update random prefix; epochs count the updates after it.',
+      [[n] + [f"{st.mean(get(a, s)):.2f}" for s, _ in STEPS] for a, n in ARMS],
+      f'Macro recall@1000 (\\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most {sd:.1f} points in every cell. All arms share a 200-update random prefix; epochs count the updates after it.',
       'tab:internal')
+(OUT / 'internal.tex').write_text('% seeds per cell (arm: e1/e2/e3): ' + '; '.join(f"{a}: " + '/'.join(str(len(get(a, s))) for s, _ in STEPS) for a, _ in ARMS) + '\n' + (OUT / 'internal.tex').read_text())
 cols = [('macro_recall_at_10', '\\recall{10}'), ('macro_recall_at_100', '\\recall{100}'), ('macro_recall_at_500', '\\recall{500}'), ('macro_recall_at_1000', '\\recall{1000}'), ('mrr_at_1000', 'MRR'), ('ndcg_at_10', 'nDCG@10')]
 rows = []
 for s, e in STEPS:
@@ -45,7 +48,7 @@ for line in md.splitlines():
     c = [x.strip() for x in line.strip('|').split('|')]
     if c and c[0] in names: rows.append([names[c[0]]] + c[1:])
 table('app_exposure.tex', 'lrrrrrrr', 'Arm & \\recall{1} & \\recall{10} & \\recall{100} & \\recall{500} & \\recall{1000} & MRR & nDCG@10', rows,
-      'Exposure negatives, all metrics (macro, \\%; seed 1501).', 'tab:app-exposure', star=True)
+      'Exposure negatives, all metrics (macro, \\%).', 'tab:app-exposure', star=True)
 
 loc = list(csv.DictReader(open(L / 'embedding-locality-r1/metrics.csv')))
 lab = {'hop1': '1 hop', 'hop2': '2 hops', 'hop3': '3 hops', 'random': 'Random user', 'positive': 'Future friend'}

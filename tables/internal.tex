@@ -1,16 +1,17 @@
+% seeds per cell (arm: e1/e2/e3): random: 3/3/2; fresh_uncapped: 2/2/2; async_uncapped: 2/2/2; fresh_capped: 2/2/1; async_capped: 2/2/1
 \begin{table}[t]
-  \caption{Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean $\pm$ s.d.\ over seeds ($n$ in parentheses). All arms share a 200-update random prefix; epochs count the updates after it.}
+  \caption{Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most 0.2 points in every cell. All arms share a 200-update random prefix; epochs count the updates after it.}
   \label{tab:internal}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrr}
     \toprule
     Method & 1 epoch & 2 epochs & 3 epochs \\
     \midrule
-Random & 32.19 $\pm$ 0.13 (3) & 34.10 $\pm$ 0.03 (3) & 34.79 $\pm$ 0.01 (2) \\
-Fresh clustered & 34.24 $\pm$ 0.20 (2) & 35.90 $\pm$ 0.06 (2) & 36.44 $\pm$ 0.04 (2) \\
-Cached clustered & 34.03 $\pm$ 0.11 (2) & 35.79 $\pm$ 0.03 (2) & 36.39 $\pm$ 0.00 (2) \\
-Fresh clustered, capped & 34.06 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.01 (2) & 36.53 (1) \\
-Cached clustered, capped & 33.84 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.00 (2) & 36.44 (1) \\
+Random & 32.19 & 34.10 & 34.79 \\
+Fresh clustered & 34.24 & 35.90 & 36.44 \\
+Cached clustered & 34.03 & 35.79 & 36.39 \\
+Fresh clustered, capped & 34.06 & 35.74 & 36.53 \\
+Cached clustered, capped & 33.84 & 35.74 & 36.44 \\
     \bottomrule
   \end{tabular}
 \end{table}

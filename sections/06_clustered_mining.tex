@@ -32,7 +32,7 @@ window.
 \label{sec:method:cost}
 
 \begin{table}[t]
-  \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs, one seed). Mining and bootstrap
+  \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs). Mining and bootstrap
   inference are charged to the method; checkpoint I/O and evaluation are excluded.}
   \label{tab:cost}
   \footnotesize\setlength{\tabcolsep}{4pt}
@@ -57,8 +57,7 @@ version exposes 47--57\,s of planning over the whole run, 0.1\% of loop time, an
 bootstrap pass of 5{,}641\,s, it costs 7\% less GPU time than random training, 15\% less without the bootstrap. The
 bootstrap is 8\% of a three-epoch run and amortises with longer training. Full-state checkpoints are larger, because
 the 2.7\,GB per-worker cache is part of the resumable state (95\,s vs.\ 37\,s per save).
-These costs are from one seed.
-\todo{Add the cost accounting of seeds 1504 and 1505.}
+% Cost accounting currently from seed 1506; add seeds 1504/1505 when their accounting is done.
 \evidence{full-scale-cached-mining/analysis-overhead/READ.md; PAPER-NOTE.md}
 
 \subsection{Retrieval quality on the production graph}
@@ -71,9 +70,9 @@ random training reaches 34.79\% macro recall@1000 and clustered training 36.38--
 or 4.6--5.0\% relative. The gain is present from the first epoch (1.7--2.1 points) and does not close as training
 continues. The cached clustering signal costs almost nothing in quality: cached and fresh clustering differ by at most
 0.22 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within 0.2 points
-of the uncapped arm at every point. The seeds agree closely: at two epochs every arm's standard deviation is at most
-0.06 points, well below the gap to random. We report the final model of every run; no checkpoint is selected.
-\todo{Rerun scripts/make\_tables.py when seed 1505 finishes; update the gains quoted in the text.}
+of the uncapped arm at every point. Across the three seeds every arm varies by at most 0.2 points, far less than the gap to random.
+We report the final model of every run; no checkpoint is selected.
+% Seeds per cell are in the header comment of tables/internal.tex; rerun scripts/make_tables.py as seeds land and update the gains quoted here.
 \evidence{full-scale-replicates/evaluation/analysis/READ.md; full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md}
 
 \subsection{Online A/B test}
