@@ -124,7 +124,8 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 - **NGAME in the introduction or only in related work: decide later.** Open.
 - **Public replicates:** two more seeds of the five arms (random, fresh/cached x uncapped/capped) on
   Collab, Citation2 and LiveJournal, then check the new seeds against the recorded single-seed numbers.
-  The capping paragraphs will draw on this one consistent set of runs.
+  The capping paragraphs will draw on this one consistent set of runs. Launched 22:17-22:33 PT Sep 28:
+  `V/lab14-shared-cached-mining/replicates-s2s3/` (30 cells, one A100 each; read in `READ.md` there).
 
 ## Excluded from the manuscript (user decisions)
 
