@@ -26,8 +26,8 @@ shrink to 0.01 and 0.05 points.
 The cap bounds how many positive rows any one cluster may contribute to a batch. With a batch of $B$ rows and a target
 of $k$ clusters per batch, a cluster contributes at most $\lceil B/k \rceil$ rows: 128 on the production graph
 ($B = 2{,}048$, $k = 16$). The scheduler fills each batch from the fullest clusters up to the cap. A window whose
-largest cluster holds more rows than the cap can place in its batches cannot be scheduled exactly; the scheduler then
-spreads that cluster evenly over the window and relaxes the cap only as far as needed.
+largest cluster holds more rows than the cap can place in its batches cannot be scheduled exactly; the scheduler refuses
+such a window rather than silently relaxing the cap (Appendix~\ref{app:results}).
 
 \subsection{When the cap matters}
 \label{sec:capping:when}
@@ -38,7 +38,7 @@ spreads that cluster evenly over the window and relaxes the cap only as far as n
   production: full-scale planned batches, means over late windows, minimum and maximum over the whole run. Gain: capped minus uncapped recall@1000 at the end of mining,
   points.}
   \label{tab:concentration}
-  \small
+  \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrrrr}
     \toprule
     & \multicolumn{2}{c}{Clusters per batch} & \multicolumn{2}{c}{Pair rate} & \\

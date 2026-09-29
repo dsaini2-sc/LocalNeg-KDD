@@ -3,10 +3,8 @@
 
 \subsection{Graph and task}
 
-Friend recommendation is framed as retrieval over a user graph of 966M nodes with three relations: friendship,
-bidirectional engagement and mutual contact-book membership.
-\todo{Edge counts per relation for the training snapshot.}
-The graph is a snapshot taken before the label window, so no training edge is created by a label. A positive is a friend
+Friend recommendation is framed as retrieval over a user graph of 966M nodes with three relations: friendship
+(67.9B directed edges), bidirectional engagement (15.0B) and mutual contact-book membership (21.3B), 104.2B in total. The graph is a snapshot taken before the label window, so no training edge is created by a label. A positive is a friend
 request sent in the 14 days after the snapshot and accepted within two days. Data preparation keeps at most four
 positives per source, which leaves 211M distinct positive pairs over 104M sources, and 169M positive rows eligible for
 training.

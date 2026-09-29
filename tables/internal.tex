@@ -1,0 +1,16 @@
+\begin{table}[t]
+  \caption{Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean $\pm$ s.d.\ over seeds ($n$ in parentheses). All arms share a 200-update random prefix; epochs count the updates after it.}
+  \label{tab:internal}
+  \footnotesize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrr}
+    \toprule
+    Method & 1 epoch & 2 epochs & 3 epochs \\
+    \midrule
+Random & 32.19 $\pm$ 0.13 (3) & 34.10 $\pm$ 0.03 (3) & 34.79 $\pm$ 0.01 (2) \\
+Fresh clustered & 34.24 $\pm$ 0.20 (2) & 35.90 $\pm$ 0.06 (2) & 36.44 $\pm$ 0.04 (2) \\
+Cached clustered & 34.03 $\pm$ 0.11 (2) & 35.79 $\pm$ 0.03 (2) & 36.39 $\pm$ 0.00 (2) \\
+Fresh clustered, capped & 34.06 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.01 (2) & 36.53 (1) \\
+Cached clustered, capped & 33.84 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.00 (2) & 36.44 (1) \\
+    \bottomrule
+  \end{tabular}
+\end{table}

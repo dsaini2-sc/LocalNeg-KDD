@@ -1,0 +1,23 @@
+\begin{table*}[t]
+  \caption{Full-scale training cost over the same 15{,}479 updates (seed 1506, 16 A100 GPUs, rank-0 wall clock in seconds unless stated). Checkpoint I/O and evaluation excluded from the totals; bootstrap inference charged to the cached arms.}
+  \label{tab:app-cost}
+  \footnotesize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrr}
+    \toprule
+     & Random & Fresh uncapped & Cached uncapped & Cached capped \\
+    \midrule
+Training-loop wall for the 15,479 updates & 74,242 & 83,767 & 64,530 & 64,578 \\
+Checkpoint I/O inside the loop & 825 & 796 & 1,972 & 1,960 \\
+Loop excluding checkpoint I/O & 73,416 & 82,970 & 62,557 & 62,618 \\
+of which exposed mining at window boundaries & 23 & 18,200 & 57 & 47 \\
+of which training steps & 73,394 & 64,770 & 62,501 & 62,571 \\
+Seconds per update, loop excl. I/O & 4.743 & 5.360 & 4.041 & 4.045 \\
+Seconds per update, training steps only & 4.741 & 4.184 & 4.038 & 4.042 \\
+Bootstrap cache inference before the loop (charged) & 0 & 0 & 5,641 & 5,641 \\
+Total training cost incl. bootstrap, excl. I/O & 73,416 & 82,970 & 68,198 & 68,259 \\
+Relative to random & 0 & +13.0\% & $-$7.1\% & $-$7.0\% \\
+Relative to random, bootstrap excluded & 0 & +13.0\% & $-$14.8\% & $-$14.7\% \\
+GPU-hours (x16), incl. bootstrap & 326 & 369 & 303 & 303 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

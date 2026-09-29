@@ -1,0 +1,101 @@
+\begin{table*}[t]
+  \caption{Every public run, per seed (full-corpus filtered metrics and the official metric, \%; Official = Collab Hits@50, Citation2 and LiveJournal sampled MRR).}
+  \label{tab:app-public}
+  \footnotesize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lllrrrrr}
+    \toprule
+    Endpoint & Graph & Method & Seed & \recall{10} & \recall{1000} & MRR & Official \\
+    \midrule
+mining & Collab & Random & 1 & 41.05 & 64.85 & 32.78 & 53.22 \\
+mining & Collab & Random & 2 & 41.06 & 64.78 & 33.08 & 53.18 \\
+mining & Collab & Random & 3 & 41.27 & 64.73 & 33.09 & 54.35 \\
+mining & Collab & Fresh clustered & 1 & 27.94 & 54.69 & 21.96 & 16.96 \\
+mining & Collab & Fresh clustered & 2 & 28.80 & 55.94 & 22.73 & 14.88 \\
+mining & Collab & Fresh clustered & 3 & 28.80 & 55.62 & 22.51 & 16.69 \\
+mining & Collab & Cached clustered & 1 & 29.81 & 56.19 & 23.51 & 18.96 \\
+mining & Collab & Cached clustered & 2 & 29.32 & 56.07 & 23.24 & 17.84 \\
+mining & Collab & Cached clustered & 3 & 31.16 & 58.05 & 24.44 & 19.62 \\
+mining & Collab & Fresh clustered, capped & 1 & 41.43 & 64.62 & 33.35 & 53.57 \\
+mining & Collab & Fresh clustered, capped & 2 & 41.21 & 64.64 & 33.09 & 54.63 \\
+mining & Collab & Fresh clustered, capped & 3 & 41.56 & 64.67 & 33.20 & 55.68 \\
+mining & Collab & Cached clustered, capped & 1 & 41.16 & 64.86 & 32.83 & 54.79 \\
+mining & Collab & Cached clustered, capped & 2 & 40.91 & 64.40 & 32.84 & 54.63 \\
+mining & Collab & Cached clustered, capped & 3 & 41.39 & 64.76 & 33.07 & 55.03 \\
+mining & Citation2 & Random & 1 & 15.82 & 73.60 & 7.57 & 84.16 \\
+mining & Citation2 & Random & 2 & 15.71 & 73.65 & 7.57 & 84.19 \\
+mining & Citation2 & Random & 3 & 15.89 & 73.82 & 7.63 & 84.26 \\
+mining & Citation2 & Fresh clustered & 1 & 6.63 & 39.19 & 3.38 & 51.26 \\
+mining & Citation2 & Fresh clustered & 2 & 6.34 & 38.58 & 3.23 & 51.88 \\
+mining & Citation2 & Fresh clustered & 3 & 6.93 & 40.13 & 3.43 & 52.48 \\
+mining & Citation2 & Cached clustered & 1 & 8.75 & 49.93 & 4.37 & 63.76 \\
+mining & Citation2 & Cached clustered & 2 & 8.31 & 49.93 & 4.18 & 64.75 \\
+mining & Citation2 & Cached clustered & 3 & 9.17 & 52.12 & 4.52 & 66.21 \\
+mining & Citation2 & Fresh clustered, capped & 1 & 16.01 & 73.12 & 7.78 & 83.70 \\
+mining & Citation2 & Fresh clustered, capped & 2 & 16.22 & 73.22 & 7.79 & 83.79 \\
+mining & Citation2 & Fresh clustered, capped & 3 & 16.06 & 73.20 & 7.74 & 83.71 \\
+mining & Citation2 & Cached clustered, capped & 1 & 15.92 & 73.12 & 7.69 & 83.73 \\
+mining & Citation2 & Cached clustered, capped & 2 & 16.20 & 73.30 & 7.80 & 83.89 \\
+mining & Citation2 & Cached clustered, capped & 3 & 16.14 & 73.27 & 7.78 & 83.84 \\
+mining & LiveJournal & Random & 1 & 27.53 & 71.25 & 15.25 & 80.99 \\
+mining & LiveJournal & Random & 2 & 27.50 & 71.29 & 15.18 & 81.17 \\
+mining & LiveJournal & Random & 3 & 27.48 & 71.14 & 15.12 & 81.05 \\
+mining & LiveJournal & Fresh clustered & 1 & 22.03 & 60.69 & 12.58 & 71.38 \\
+mining & LiveJournal & Fresh clustered & 2 & 21.19 & 58.75 & 12.08 & 69.87 \\
+mining & LiveJournal & Fresh clustered & 3 & 22.19 & 62.09 & 12.61 & 73.31 \\
+mining & LiveJournal & Cached clustered & 1 & 20.51 & 58.04 & 11.64 & 68.84 \\
+mining & LiveJournal & Cached clustered & 2 & 19.87 & 56.00 & 11.36 & 66.98 \\
+mining & LiveJournal & Cached clustered & 3 & 20.38 & 57.28 & 11.64 & 68.41 \\
+mining & LiveJournal & Fresh clustered, capped & 1 & 28.51 & 71.49 & 15.73 & 81.16 \\
+mining & LiveJournal & Fresh clustered, capped & 2 & 28.62 & 71.53 & 15.63 & 81.18 \\
+mining & LiveJournal & Fresh clustered, capped & 3 & 28.55 & 71.42 & 15.73 & 81.16 \\
+mining & LiveJournal & Cached clustered, capped & 1 & 28.51 & 71.46 & 15.74 & 81.16 \\
+mining & LiveJournal & Cached clustered, capped & 2 & 28.70 & 71.52 & 15.68 & 81.17 \\
+mining & LiveJournal & Cached clustered, capped & 3 & 28.53 & 71.35 & 15.72 & 81.10 \\
+continuation & Collab & Random & 1 & 41.36 & 64.97 & 32.99 & 53.40 \\
+continuation & Collab & Random & 2 & 41.09 & 64.80 & 33.04 & 52.11 \\
+continuation & Collab & Random & 3 & 41.09 & 64.68 & 32.92 & 53.25 \\
+continuation & Collab & Fresh clustered & 1 & 41.17 & 64.07 & 33.18 & 51.84 \\
+continuation & Collab & Fresh clustered & 2 & 40.93 & 64.01 & 32.98 & 52.42 \\
+continuation & Collab & Fresh clustered & 3 & 41.10 & 64.13 & 33.06 & 52.96 \\
+continuation & Collab & Cached clustered & 1 & 41.31 & 63.91 & 33.14 & 52.55 \\
+continuation & Collab & Cached clustered & 2 & 40.84 & 63.97 & 33.14 & 51.72 \\
+continuation & Collab & Cached clustered & 3 & 41.15 & 64.30 & 33.14 & 53.25 \\
+continuation & Collab & Fresh clustered, capped & 1 & 41.33 & 64.57 & 32.87 & 53.85 \\
+continuation & Collab & Fresh clustered, capped & 2 & 40.47 & 64.34 & 32.55 & 52.88 \\
+continuation & Collab & Fresh clustered, capped & 3 & 41.02 & 64.10 & 32.70 & 52.87 \\
+continuation & Collab & Cached clustered, capped & 1 & 41.11 & 64.41 & 32.76 & 52.72 \\
+continuation & Collab & Cached clustered, capped & 2 & 40.50 & 64.15 & 32.33 & 53.34 \\
+continuation & Collab & Cached clustered, capped & 3 & 40.84 & 64.40 & 32.64 & 53.70 \\
+continuation & Citation2 & Random & 1 & 15.78 & 73.75 & 7.60 & 84.27 \\
+continuation & Citation2 & Random & 2 & 15.73 & 73.68 & 7.57 & 84.20 \\
+continuation & Citation2 & Random & 3 & 15.89 & 73.81 & 7.62 & 84.25 \\
+continuation & Citation2 & Fresh clustered & 1 & 15.01 & 70.34 & 7.21 & 81.90 \\
+continuation & Citation2 & Fresh clustered & 2 & 15.08 & 70.03 & 7.22 & 81.67 \\
+continuation & Citation2 & Fresh clustered & 3 & 14.87 & 70.15 & 7.18 & 81.75 \\
+continuation & Citation2 & Cached clustered & 1 & 15.19 & 70.95 & 7.32 & 82.38 \\
+continuation & Citation2 & Cached clustered & 2 & 15.23 & 70.59 & 7.26 & 82.04 \\
+continuation & Citation2 & Cached clustered & 3 & 14.90 & 70.69 & 7.24 & 82.05 \\
+continuation & Citation2 & Fresh clustered, capped & 1 & 16.02 & 73.57 & 7.77 & 84.05 \\
+continuation & Citation2 & Fresh clustered, capped & 2 & 16.24 & 73.50 & 7.75 & 83.89 \\
+continuation & Citation2 & Fresh clustered, capped & 3 & 16.18 & 73.56 & 7.78 & 84.00 \\
+continuation & Citation2 & Cached clustered, capped & 1 & 16.03 & 73.62 & 7.73 & 84.05 \\
+continuation & Citation2 & Cached clustered, capped & 2 & 16.21 & 73.37 & 7.77 & 83.88 \\
+continuation & Citation2 & Cached clustered, capped & 3 & 16.19 & 73.54 & 7.77 & 84.05 \\
+continuation & LiveJournal & Random & 1 & 27.47 & 71.29 & 15.23 & 81.02 \\
+continuation & LiveJournal & Random & 2 & 27.60 & 71.29 & 15.20 & 81.10 \\
+continuation & LiveJournal & Random & 3 & 27.55 & 71.16 & 15.19 & 81.06 \\
+continuation & LiveJournal & Fresh clustered & 1 & 27.63 & 70.90 & 15.31 & 80.69 \\
+continuation & LiveJournal & Fresh clustered & 2 & 27.95 & 70.90 & 15.51 & 80.74 \\
+continuation & LiveJournal & Fresh clustered & 3 & 27.72 & 70.85 & 15.42 & 80.69 \\
+continuation & LiveJournal & Cached clustered & 1 & 27.68 & 70.77 & 15.32 & 80.65 \\
+continuation & LiveJournal & Cached clustered & 2 & 27.92 & 70.85 & 15.41 & 80.67 \\
+continuation & LiveJournal & Cached clustered & 3 & 27.92 & 70.74 & 15.43 & 80.60 \\
+continuation & LiveJournal & Fresh clustered, capped & 1 & 28.13 & 71.31 & 15.55 & 80.98 \\
+continuation & LiveJournal & Fresh clustered, capped & 2 & 28.22 & 71.24 & 15.58 & 81.02 \\
+continuation & LiveJournal & Fresh clustered, capped & 3 & 28.19 & 71.18 & 15.60 & 81.01 \\
+continuation & LiveJournal & Cached clustered, capped & 1 & 28.14 & 71.24 & 15.61 & 80.99 \\
+continuation & LiveJournal & Cached clustered, capped & 2 & 28.18 & 71.22 & 15.59 & 81.01 \\
+continuation & LiveJournal & Cached clustered, capped & 3 & 28.18 & 71.14 & 15.61 & 81.01 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

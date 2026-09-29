@@ -1,3 +1,42 @@
 \section{Additional Results}
 \label{app:results}
-\todo{Full metric tables (all cutoffs, ranking metrics) per seed; exposure label audit; scheduler feasibility repair; evaluation panel construction.}
+
+All tables in this appendix are generated from the experiment records by \texttt{scripts/make\_tables.py}.
+
+\subsection{Production graph: every evaluation}
+Table~\ref{tab:app-internal} lists every full-scale evaluation at one, two and three epochs after the shared prefix, per seed and
+metric. The ordering of Table~\ref{tab:internal} holds at every cutoff: all four clustered arms beat random at recall@10, 100, 500 and
+1000, in MRR and in nDCG@10, at every point and in every seed.
+\input{tables/app_internal}
+
+\subsection{Evaluation panel}
+The panel's queries are the users with at least one accepted friend request in the three days after the training window, and their
+positives are those requests. Candidates are a fixed uniform hash sample of 50M users together with every positive target, 85.3M users in
+all. Ranking is exact over the candidates. Macro recall@$k$ is the per-query share of positives ranked in the top $k$, averaged over
+queries.
+
+\subsection{Training cost}
+Table~\ref{tab:app-cost} decomposes the full-scale wall clock. Fresh clustering exposes 18{,}200\,s of per-window inference; the cached
+planner exposes under 60\,s over the whole run and runs its clustering (1{,}600--1{,}760\,s in total) on a CPU thread while the GPU trains.
+Full-state checkpoints of the cached arms are larger because the 2.7\,GB per-worker cache is part of the resumable state.
+\input{tables/app_cost}
+
+\subsection{Exposure negatives}
+Table~\ref{tab:app-exposure} gives every metric of the three exposure arms. The label audit behind Section~\ref{sec:exposure}: 0.512\% of
+stored exposure pairs coincide with requests accepted inside the training window, and 0.514\% are accepted in the following seven days.
+\input{tables/app_exposure}
+
+\subsection{Embedding locality}
+Table~\ref{tab:app-locality} gives the locality measurement per seed, and the same measurement on the sampled graph for one model at
+three stages of training.
+\input{tables/app_locality}
+
+\subsection{Public graphs: every run}
+Table~\ref{tab:app-public} lists every public run per seed at the end of mining and after the 128 common random updates.
+\input{tables/app_public}
+
+\subsection{Cap feasibility}
+A window whose largest cluster holds more rows than the cap can place across the window's batches cannot be scheduled exactly. The
+scheduler used in every capped run of this paper stops with an error on such a window instead of relaxing the cap. The one exception is
+a final window shorter than the refresh interval, which is scheduled with an exact equal-batch order that still respects the cap. Every
+capped run reported here completed, so every window was scheduled under the strict cap.

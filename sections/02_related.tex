@@ -3,14 +3,15 @@
 
 \paragraph{Negatives for embedding-based retrieval.}
 Two-tower retrieval models are commonly trained with in-batch and sampled negatives, corrected for sampling frequency
-with a logQ term~\cite{yi2019sampling}. Harder negatives come from two places. Industrial systems log impressions that
-were not acted on and mine hard negatives from the model being trained~\cite{huang2020ebr}; dense text retrieval mines
+with a logQ term~\cite{yi2019sampling}. Harder negatives come from two places. Facebook's embedding-based search found
+that training on non-click impressions instead of random negatives cost 55\% absolute recall for people search, which it
+attributes to impressions over-representing hard cases, and that mined hard negatives help only when blended with random
+ones~\cite{huang2020ebr}. Dense text retrieval mines
 them from an approximate-nearest-neighbour index that is periodically rebuilt~\cite{xiong2021ance,karpukhin2020dpr} and
 has to filter the false negatives such mining brings in~\cite{qu2021rocketqa}. PinSage draws hard negatives from
 personalised-PageRank neighbourhoods with a curriculum~\cite{ying2018graph}.
-\todo{Check what \cite{huang2020ebr} report for non-click impressions as negatives and state it precisely.}
-Our exposure result adds a controlled measurement on a friend graph: the logged negatives hurt, and a slot-matched
-random control shows that the harm lies in which users they are.
+Our exposure result is the blended case on a friend graph: exposures added to random negatives still hurt, and a
+slot-matched random control shows that the harm lies in which users they are, not in the added negatives.
 
 \paragraph{Batch construction as negative mining.}
 Composing batches so that in-batch negatives are hard is an established alternative to mining them per example.

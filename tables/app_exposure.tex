@@ -1,0 +1,14 @@
+\begin{table*}[t]
+  \caption{Exposure negatives, all metrics (macro, \%; seed 1501).}
+  \label{tab:app-exposure}
+  \footnotesize\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lrrrrrrr}
+    \toprule
+    Arm & \recall{1} & \recall{10} & \recall{100} & \recall{500} & \recall{1000} & MRR & nDCG@10 \\
+    \midrule
+No exposure negatives & 0.4015 & 2.5994 & 11.8855 & 26.0798 & 34.0880 & 2.3253 & 1.5689 \\
+Exposure negatives added back & 0.3981 & 2.5627 & 11.7067 & 25.7470 & 33.7401 & 2.2817 & 1.5439 \\
+Same slots, random users & 0.4012 & 2.6031 & 11.9009 & 26.1018 & 34.0971 & 2.3296 & 1.5709 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}

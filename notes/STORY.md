@@ -127,6 +127,14 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
   The capping paragraphs will draw on this one consistent set of runs. Launched 22:17-22:33 PT Sep 28:
   `V/lab14-shared-cached-mining/replicates-s2s3/` (30 cells, one A100 each; read in `READ.md` there).
 
+## Open items (2026-09-29)
+
+- Online A/B details (traffic share, user count, retrieval stage, declining metrics, final numbers): owned by the
+  user, marked `\abtodo` (orange) in the source.
+- Waiting on runs: three-seed exposure table (seeds 1502-1503), three-seed full-scale table (seed 1505), cost
+  accounting for seeds 1504-1505.
+- Decisions: title; NGAME named in the introduction or only in related work.
+
 ## Excluded from the manuscript (user decisions)
 
 - Source-batched NGAME runs, including the M0 result and the M11 internal arm built on the M0

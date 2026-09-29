@@ -17,14 +17,14 @@ negatives.
   candidate slots with uniform random users. One training seed; re-evaluating one checkpoint moves every metric by at
   most 0.002 points.}
   \label{tab:exposure}
-  \small
+  \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrrr}
     \toprule
     Arm & \recall{10} & \recall{100} & \recall{1000} & MRR \\
     \midrule
-    No exposure negatives & 2.599 & 11.886 & 34.088 & 2.325 \\
-    Exposure negatives added back & 2.563 & 11.707 & 33.740 & 2.282 \\
-    Same slots, random users & 2.603 & 11.901 & 34.097 & 2.330 \\
+    None & 2.599 & 11.886 & 34.088 & 2.325 \\
+    Exposures added back & 2.563 & 11.707 & 33.740 & 2.282 \\
+    Same slots, random & 2.603 & 11.901 & 34.097 & 2.330 \\
     \midrule
     Added back $-$ random control & $-$0.040 & $-$0.194 & $-$0.357 & $-$0.048 \\
     Random control $-$ none & +0.004 & +0.015 & +0.009 & +0.004 \\

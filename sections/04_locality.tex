@@ -41,8 +41,10 @@ are therefore hard, and random negatives, 0.53 below the positives on average, a
 A training example is a positive row, a user paired with one future friend; each user contributes one to four rows,
 two on average. We measure what happens when 2{,}048-row batches are formed by clustering users on the
 random-trained model's query embeddings, as the trainer does, rather than drawn at random. The measurement uses a
-13.3M-node sample of the production graph and the trainer's own neighbourhood sampler.
-\todo{One sentence on how the 13.3M-node sample was drawn from the production graph.}
+sample of the production graph and the trainer's own neighbourhood sampler. The sample keeps 500{,}000 anchors selected by
+a deterministic hash, all of their stored positives, and up to 10 friend, 20 engagement and 10 contact-book neighbours of
+each anchor, with every edge among those nodes: 13.3M nodes, 0.98B edges and 1.01M positive rows, under the same
+four-positive cap as production.
 
 Clustered batches bring whole regions of the graph together. The share of a batch's sampled one-hop nodes that are
 reached from two or more batch roots doubles, from 2.2\% to 4.7\%. The users' positives come along: the share of

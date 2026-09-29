@@ -35,15 +35,15 @@ window.
   \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs, one seed). Mining and bootstrap
   inference are charged to the method; checkpoint I/O and evaluation are excluded.}
   \label{tab:cost}
-  \small
+  \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrr}
     \toprule
-    & Random & Fresh clustered & Cached clustered \\
+    & Random & Fresh clust. & Cached clust. \\
     \midrule
-    Seconds per update, training steps only & 4.74 & 4.18 & 4.04 \\
-    Exposed mining (s, whole run) & 23 & 18{,}200 & 47--57 \\
-    Bootstrap inference (s) & 0 & 0 & 5{,}641 \\
-    Total GPU-hours & 326 & 369 & 303 \\
+    Seconds per training step & 4.74 & 4.18 & 4.04 \\
+    Exposed mining, s per run & 23 & 18{,}200 & 47--57 \\
+    Bootstrap inference, s & 0 & 0 & 5{,}641 \\
+    GPU-hours & 326 & 369 & 303 \\
     Relative to random & -- & +13.0\% & $-$7.0\% \\
     \bottomrule
   \end{tabular}
@@ -64,23 +64,7 @@ These costs are from one seed.
 \subsection{Retrieval quality on the production graph}
 \label{sec:method:results}
 
-\begin{table}[t]
-  \caption{Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean $\pm$ s.d.\
-  over seeds ($n$ in parentheses). All arms share a 200-update random prefix; epochs count the updates after it.}
-  \label{tab:internal}
-  \small
-  \begin{tabular}{lrrr}
-    \toprule
-    Method & 1 epoch & 2 epochs & 3 epochs \\
-    \midrule
-    Random & 32.19 $\pm$ 0.13 (3) & 34.08 $\pm$ 0.01 (2) & 34.79 $\pm$ 0.01 (2) \\
-    Fresh clustered & 34.24 $\pm$ 0.20 (2) & 35.90 $\pm$ 0.06 (2) & 36.47 (1) \\
-    Cached clustered & 34.03 $\pm$ 0.11 (2) & 35.79 $\pm$ 0.03 (2) & 36.38 (1) \\
-    Fresh clustered, capped & 34.06 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.01 (2) & 36.53 (1) \\
-    Cached clustered, capped & 33.84 $\pm$ 0.05 (2) & 35.74 $\pm$ 0.00 (2) & 36.44 (1) \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/internal}
 
 Clustered batching improves retrieval at every point of training (Table~\ref{tab:internal}). After three epochs,
 random training reaches 34.79\% macro recall@1000 and clustered training 36.38--36.53\%, a gain of 1.6--1.7 points,
@@ -98,9 +82,9 @@ of the uncapped arm at every point. The seeds agree closely: at two epochs every
 We deployed the cached, capped variant, trained without exposure negatives, and compared it with the production model,
 trained with random and exposure negatives, in a ten-day online A/B test of friend recommendation (September 17--26,
 2026).
-\todo{Traffic share, number of users, which retrieval stage the embeddings serve.}
+\abtodo{Traffic share, number of users, which retrieval stage the embeddings serve.}
 New friends made rose by 1.01\% ($\pm$0.23\%), and new friends made with bidirectional communication, our
 headline friending metric, by 2.09\% ($\pm$0.29\%); active days with such a new friend rose by 1.23\%
 ($\pm$0.12\%). Of the friending metrics that moved significantly, 41 improved and 17 declined.
-\todo{Name the declining metrics or state that none are guardrails; refine all numbers against the final read.}
+\abtodo{Name the declining metrics or state that none are guardrails; refine all numbers against the final read.}
 \evidence{abconsole FRND\_QA\_EBR, segment GTv17 A/B (ID 225237), Exp 3 vs.\ Exp 2}
