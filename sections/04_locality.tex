@@ -42,7 +42,7 @@ A training example is a positive row, a user paired with one future friend; each
 two on average. We measure what happens when 2{,}048-row batches are formed by clustering users on the
 random-trained model's query embeddings, as the trainer does, rather than drawn at random. The measurement uses a
 13.3M-node sample of the production graph and the trainer's own neighbourhood sampler.
-\todo{Say that the mini graph is a sample of the production graph with the same positive cap; one sentence on how it was drawn.}
+\todo{One sentence on how the 13.3M-node sample was drawn from the production graph.}
 
 Clustered batches bring whole regions of the graph together. The share of a batch's sampled one-hop nodes that are
 reached from two or more batch roots doubles, from 2.2\% to 4.7\%. The users' positives come along: the share of

@@ -1,3 +1,14 @@
 \begin{abstract}
-\todo{Write last. Five sentences: (1) setting, billion-node friend retrieval trained contrastively; (2) observation, random-trained embeddings are graph-local and exposure negatives hurt; (3) method, clustered-anchor mining from a cached embedding signal, +1.7\pp{} macro \recall{1000} at lower cost than random; (4) risk and fix, concentrated batches cause regional forgetting and a per-cluster row cap prevents it on three public graphs; (5) takeaway, a concentration statistic tells practitioners when the cap is needed.}
+Embedding-based friend retrieval on a billion-node social graph is trained contrastively, and its negatives decide both
+what the model learns and what training costs. The conventional industrial source of hard negatives, logged exposures,
+hurts on this graph: adding them lowers macro recall@1000 by 0.35 points, while a slot-matched random control costs
+nothing, so the harm lies in which users are exposed. We start instead from the model production already trains. Its
+embeddings, learned with random negatives only, are graph-local: one-hop neighbours average a cosine similarity of 0.70
+with a user, random users 0.07. Clustering anchors on these embeddings therefore yields hard in-batch negatives and
+batches that sample 35\% fewer nodes. With the clustering signal cached from training itself, clustered batching raises
+macro recall@1000 by 1.6--1.7 points at full scale while using 7\% fewer GPU-hours than random batching, and the
+deployed model increased new friends made with bidirectional communication by 2.09\% in an online A/B test. The same
+concentration can fail: on Collab, Citation2 and LiveJournal, uncapped clustered batches collapse onto single clusters
+and end 8--34 points of recall@1000 below random training. A per-cluster row cap prevents the collapse in every seed,
+and the concentration of the uncapped plan shows in advance whether a graph needs it.
 \end{abstract}

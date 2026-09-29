@@ -2,13 +2,29 @@
 \label{sec:setting}
 
 \subsection{Graph and task}
-\todo{Friend recommendation as retrieval. Graph: $\sim$966M nodes (d0826 id map), edge count TBD; 104M sources with positive labels, 211M distinct positive pairs, at most 4 positives per source after data preparation.}
-\evidence{exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; lab13 README.md}
+
+Friend recommendation is framed as retrieval over a user graph of 966M nodes with three relations: friendship,
+bidirectional engagement and mutual contact-book membership.
+\todo{Edge counts per relation for the training snapshot.}
+The graph is a snapshot taken before the label window, so no training edge is created by a label. A positive is a friend
+request sent in the 14 days after the snapshot and accepted within two days. Data preparation keeps at most four
+positives per source, which leaves 211M distinct positive pairs over 104M sources, and 169M positive rows eligible for
+training.
 
 \subsection{Model and training}
-\todo{Graph-transformer encoder over sampled neighbourhoods; query decoder and candidate side; InfoNCE with in-batch and random negatives and logQ correction from count-min sketches; batch 2,048 per rank, 16 A100s, 3 epochs after a shared 200-update random prefix.}
-\evidence{BAGLNotes/03-model-loss-and-training-loop.md; full-scale-cached-mining/PLAN.md}
+
+A graph-transformer encoder embeds each user from its sampled neighbourhood (fanouts of 10 friends, 20 then 10 engagement
+neighbours, and 10 contact-book neighbours) into 128 dimensions. A two-layer decoder maps the anchor's embedding into a
+query space; candidates are scored against it by their encoder embeddings. A training example is a positive row, an
+anchor paired with one of its positives. The loss is InfoNCE over the positives of the other rows in the batch and 8{,}192
+shared random negatives per step, with accidental hits removed and a logQ frequency correction estimated with
+count-min sketches~\cite{yi2019sampling}. Each of 16 A100 workers trains on 2{,}048 rows per step. Every run starts from the
+same 200-update random-batch prefix and then trains 15{,}479 further updates, three passes over the eligible rows.
 
 \subsection{Evaluation}
-\todo{Frozen panel: 38,960,484 queries, 156,768,105 positives (Sep 11--13 labels), 85,318,537 candidates; exact search; macro recall@\{10,100,500,1000\} primary, plus ranking metrics. Serving budget is 1,000 candidates, so \recall{1000} is the headline.}
-\evidence{evaluation/all-results/READ.md; evaluation/METRIC-DECISION.md}
+
+We evaluate on a frozen panel built from the three days of labels after the training window: 38.96M queries with
+156.8M positives, ranked against 85.3M candidates, a fixed uniform sample of 50M users together with every positive
+target. Search is exact within the panel. The headline metric is macro recall@1000, the per-query mean, because the
+retrieval stage hands 1{,}000 candidates to ranking; we also report recall at 10, 100 and 500 and MRR. Every number is
+from the final model of a run; no checkpoint is selected.

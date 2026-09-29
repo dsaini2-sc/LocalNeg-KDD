@@ -15,8 +15,7 @@ embedding into balanced clusters of about 64 anchors with recursive two-means, a
 following NGAME's batch ordering~\cite{dahiya2023ngame}, targeting 16 clusters per batch. All rows of an anchor stay
 in its cluster, so an anchor's positives train together. Random negatives are kept (512 per worker, 8{,}192 per step),
 as is the frequency correction of the loss. The first 200 updates of every run use random batches; clustering starts
-from that shared prefix model.
-\todo{Check the prefix length against the warm-start rule: clustering needs a converged random phase. State why 200 updates suffice at full scale.}
+from that shared prefix model, and every arm, random included, continues from the same prefix checkpoint.
 
 \subsection{A cached clustering signal}
 \label{sec:method:cache}
@@ -58,7 +57,8 @@ version exposes 47--57\,s of planning over the whole run, 0.1\% of loop time, an
 bootstrap pass of 5{,}641\,s, it costs 7\% less GPU time than random training, 15\% less without the bootstrap. The
 bootstrap is 8\% of a three-epoch run and amortises with longer training. Full-state checkpoints are larger, because
 the 2.7\,GB per-worker cache is part of the resumable state (95\,s vs.\ 37\,s per save).
-\todo{Replicate the cost numbers on seeds 1504 and 1505 once their trainers finish; state the one-seed caveat until then.}
+These costs are from one seed.
+\todo{Add the cost accounting of seeds 1504 and 1505.}
 \evidence{full-scale-cached-mining/analysis-overhead/READ.md; PAPER-NOTE.md}
 
 \subsection{Retrieval quality on the production graph}
@@ -95,8 +95,9 @@ of the uncapped arm at every point. The seeds agree closely: at two epochs every
 \subsection{Online A/B test}
 \label{sec:method:online}
 
-We tested NGAME-style hard-negative mining, trained without exposure negatives, against the production model, trained
-with random and exposure negatives, in a ten-day online A/B test of friend recommendation (September 17--26, 2026).
+We deployed the cached, capped variant, trained without exposure negatives, and compared it with the production model,
+trained with random and exposure negatives, in a ten-day online A/B test of friend recommendation (September 17--26,
+2026).
 \todo{Traffic share, number of users, which retrieval stage the embeddings serve.}
 New friends made rose by 1.01\% ($\pm$0.23\%), and new friends made with bidirectional communication, our
 headline friending metric, by 2.09\% ($\pm$0.29\%); active days with such a new friend rose by 1.23\%

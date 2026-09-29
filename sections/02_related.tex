@@ -1,12 +1,32 @@
 \section{Related Work}
 \label{sec:related}
-% Keep to three short paragraphs; position against the closest work, not a survey.
 
 \paragraph{Negatives for embedding-based retrieval.}
-\todo{In-batch and sampled negatives with frequency (logQ) correction \cite{yi2019sampling}; logged exposures as hard negatives in industrial search \cite{huang2020ebr}; index-mined negatives \cite{xiong2021ance,karpukhin2020dpr}.}
+Two-tower retrieval models are commonly trained with in-batch and sampled negatives, corrected for sampling frequency
+with a logQ term~\cite{yi2019sampling}. Harder negatives come from two places. Industrial systems log impressions that
+were not acted on and mine hard negatives from the model being trained~\cite{huang2020ebr}; dense text retrieval mines
+them from an approximate-nearest-neighbour index that is periodically rebuilt~\cite{xiong2021ance,karpukhin2020dpr} and
+has to filter the false negatives such mining brings in~\cite{qu2021rocketqa}. PinSage draws hard negatives from
+personalised-PageRank neighbourhoods with a curriculum~\cite{ying2018graph}.
+\todo{Check what \cite{huang2020ebr} report for non-click impressions as negatives and state it precisely.}
+Our exposure result adds a controlled measurement on a friend graph: the logged negatives hurt, and a slot-matched
+random control shows that the harm lies in which users they are.
 
 \paragraph{Batch construction as negative mining.}
-\todo{Topic- or cluster-aware batch sampling \cite{hofstatter2021tasb}; mining-aware mini-batching for extreme classification \cite{dahiya2023ngame}; ANCE-Tele (see V/lab12-query-tracking/literature/SURVEY.md). Our difference: the cluster signal comes from the model's own embeddings, cached, on a graph where it also cuts encoder work.}
+Composing batches so that in-batch negatives are hard is an established alternative to mining them per example.
+TAS-Balanced clusters queries by topic and samples each batch from one cluster~\cite{hofstatter2021tasb}; NGAME clusters
+queries by their embeddings and forms mini-batches from clusters, making in-batch negatives hard at no mining cost in
+extreme classification~\cite{dahiya2023ngame}, and our scheduler uses its batch ordering. ANCE-Tele observes that
+refreshing hard negatives makes dense retrievers forget and counters it with negatives carried over from earlier
+iterations~\cite{sun2022ancetele}. We add three things these works do not address: on a graph, embedding clusters are
+graph regions, so clustered batches are also cheaper to encode; the clustering signal can be cached from training itself;
+and batch concentration is a failure mode of its own, regional forgetting, which a per-cluster cap prevents and a
+concentration statistic predicts.
 
 \paragraph{Graph locality and training efficiency.}
-\todo{Cluster-GCN partitions the graph to shrink sampled subgraphs \cite{chiang2019clustergcn}; GraphSAGE and PinSage sampling \cite{hamilton2017inductive,ying2018graph}; forgetting under non-stationary batches \cite{mccloskey1989catastrophic}. Novelty limits: V/lab13-internal-evidence/small-graph/async-cached-mining/literature/SURVEY-2026-09-25.md.}
+Sampling-based graph neural networks encode each node from a sampled neighbourhood~\cite{hamilton2017inductive,ying2018graph},
+so the cost of a batch depends on how much its neighbourhoods overlap. Cluster-GCN exploits this by building batches
+from graph partitions~\cite{chiang2019clustergcn}. Clustered-anchor batching obtains a similar locality without a
+partitioner, from the model's own embeddings, and applies it to supervision rows rather than nodes. The regional
+forgetting we observe is an instance of catastrophic interference under non-stationary training
+data~\cite{mccloskey1989catastrophic}, here created by the batch scheduler.

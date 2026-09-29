@@ -1,3 +1,14 @@
 \section{Lessons for Practitioners}
 \label{sec:lessons}
-\todo{Short list: check exposure negatives before trusting them; measure embedding locality before choosing a batching scheme; cache the clustering signal instead of re-embedding; measure concentration and cap when it is high. Deployment status and the absence of an online A/B belong here if kept.}
+
+\begin{itemize}
+  \item \textbf{Test exposure negatives against a slot-matched random control.} On our graph they cost 1\% of
+        recall@1000, and the control shows that the harm is in the exposed users, not in the added negatives.
+  \item \textbf{Look at the embeddings you already have.} A model trained with random negatives is graph-local, so
+        clustering on its embeddings gives hard in-batch negatives and cheaper batches at once.
+  \item \textbf{Cache the clustering signal.} The training loop already computes the embeddings the scheduler needs;
+        re-embedding for mining costs more than clustered batching saves.
+  \item \textbf{Measure batch concentration before training, and cap it.} The worst-batch same-cluster pair rate of the
+        uncapped plan separates graphs that collapse from graphs that do not. The cap prevents the collapse where it
+        matters and costs nothing where it does not, so it is safe to leave on.
+\end{itemize}

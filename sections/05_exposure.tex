@@ -1,14 +1,59 @@
 \section{Exposure Negatives Hurt}
 \label{sec:exposure}
-% Observation 2. Claim only what the controls support; do not call exposures false negatives.
 
 \subsection{The conventional source}
-\todo{What an exposure negative is (shown, not added, within the label window); why industry uses it \cite{huang2020ebr}; 59.5M stored exposure pairs on d0826.}
+
+An exposure negative is a user who was shown to the source as a friend suggestion during the label window and was not
+added. Exposures are the standard industrial source of hard negatives~\cite{huang2020ebr}: they are free to log, they
+come from the production candidate distribution, and a user who saw a suggestion and passed on it looks like a genuine
+no. Our data preparation stores one exposure per source, the most-shown suggestion that was not added, 59.5M pairs in
+total, and the historical trainer used them as extra candidates in the contrastive loss, next to the in-batch and random
+negatives.
 
 \subsection{Effect}
-\todo{Add-back on d0826: macro \recall{1000} 34.09 $\rightarrow$ 33.74 ($-$0.35\pp), every metric down, Vertex and Prism agree ($-$0.346 / $-$0.348). Removal on d0731: +1.07\%. Harm concentrated on queries that own an exposure label ($-$0.72\pp{} vs.\ +0.04\pp).}
-\evidence{exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
 
-\subsection{Why}
-\todo{Pending: random-substitute control (same slots, uniform random users), 3 seeds. Add-back minus control isolates these particular candidates; control minus baseline isolates having more negatives. Hypotheses: delayed or censored positives (0.51\% of exposures are accepted within 7 days), broadcast to all queries in the batch, negative pressure coupled with logQ correction.}
-\evidence{exposure-ablation/CONTROL-DESIGN.md; exposure-ablation/prism-training/README.md}
+\begin{table}[t]
+  \caption{Exposure negatives on the production graph (macro recall, \%; frozen panel). The control fills the same
+  candidate slots with uniform random users. One training seed; re-evaluating one checkpoint moves every metric by at
+  most 0.002 points.}
+  \label{tab:exposure}
+  \small
+  \begin{tabular}{lrrrr}
+    \toprule
+    Arm & \recall{10} & \recall{100} & \recall{1000} & MRR \\
+    \midrule
+    No exposure negatives & 2.599 & 11.886 & 34.088 & 2.325 \\
+    Exposure negatives added back & 2.563 & 11.707 & 33.740 & 2.282 \\
+    Same slots, random users & 2.603 & 11.901 & 34.097 & 2.330 \\
+    \midrule
+    Added back $-$ random control & $-$0.040 & $-$0.194 & $-$0.357 & $-$0.048 \\
+    Random control $-$ none & +0.004 & +0.015 & +0.009 & +0.004 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Adding the stored exposures back to an otherwise identical training run lowers macro recall@1000 from 34.09\% to
+33.74\%, a relative loss of 1.0\%, and every cutoff and ranking metric falls with it (Table~\ref{tab:exposure}). An
+earlier, independently initialised pair of runs measured the same loss, $-$0.346 points, and the production recipe had
+already dropped exposure negatives after removing them gained 1.07\% relative recall@1000 on an older snapshot of the
+graph (0.93\% for a variant that also dropped them before sampling). The harm sits where the exposures are: in a
+1-in-1{,}000 sample of queries, those that own an exposure label lose 0.72 points in the add-back model and the others
+gain 0.04.
+\todo{Replace the one-seed table with the three-seed means (seeds 1501--1503).}
+\evidence{exposure-ablation/READ-seed1501.md; HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
+
+\subsection{Which users, not how many}
+
+Adding exposures changes two things at once: each batch gets more negatives, and those negatives are particular
+users. The control separates them. It keeps every exposure slot, at the same positions and shared with the same
+queries, and fills it with a uniform random user instead. The control matches the baseline at every cutoff, within
+0.022 points, so extra negative pressure and the slot structure cost nothing. The whole loss, 0.357 points of
+recall@1000, is carried by the identity of the exposed users.
+
+The identity effect still bundles several properties of those users, and we do not separate them here. Some exposures
+are not negatives at all: 0.51\% of stored exposure pairs coincide with requests accepted within the training window,
+and another 0.51\% are accepted in the following seven days. Exposed users also come from the production candidate
+distribution, so unlike the random substitutes they tend to be popular, recur across batches, and receive a different
+frequency correction in the loss. What the control rules out is the explanation practitioners usually reach for, that
+exposures hurt only because they add negatives.
+\evidence{exposure-ablation/CONTROL-DESIGN.md; LABEL-AUDIT.md; audits-20260925/READ.md}
