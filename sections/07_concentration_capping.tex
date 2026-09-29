@@ -1,0 +1,13 @@
+\section{Concentration Cuts Both Ways}
+\label{sec:capping}
+
+\subsection{Regional forgetting}
+\todo{Mechanism: when positive supply is skewed, a few dense clusters fill whole batches. Imbalanced depletion worsens other-region loss and \recall{10} in 48 of 48 settings while improving own-region loss in 46; acute and largely recoverable.}
+\evidence{lab5-batch-causality/p14-p16-coordination/SCIENTIFIC-READ.md}
+
+\subsection{A per-cluster row cap}
+\todo{Definition: at most $c$ positive rows per cluster per batch (cap 128 at B 2,048); feasibility repair when a cluster exceeds its window budget.}
+
+\subsection{When the cap matters: a concentration statistic}
+\todo{Table: dataset $\times$ (concentration statistic, capped minus uncapped with CI). Collab / Citation2 / LiveJournal high concentration, large benefit; production graph low (data-prep cap 4 keeps 34.7\% of rows; largest cluster share 11.4\%), capped minus uncapped $-$0.29..+0.21\pp{}, inside the 0.4\pp{} noise band.}
+\evidence{capping-regime/READ.md; queue-audit/READ.md; lab14-shared-cached-mining/reports/*-READ.md}

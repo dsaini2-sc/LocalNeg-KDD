@@ -1,0 +1,18 @@
+\section{Public Benchmarks}
+\label{sec:public}
+% Each dataset's established metric: Collab Hits@50, Citation2 MRR, LiveJournal (pick one). See risk 4 in notes/STORY.md.
+
+\subsection{Setup}
+\todo{Collab, Citation2 \cite{hu2020ogb}, LiveJournal \cite{leskovec2009lj}; same encoder family and mining code; warm start from a random-trained checkpoint.}
+
+\subsection{Uncapped collapses, capped does not}
+\todo{Mining end, \recall{1000} vs.\ random: uncapped $-$10.16 / $-$34.41 / $-$10.56\pp; capped $-$0.23 / $-$0.47 / +0.24. Clusters per batch in the last 100 updates: Collab 20.4 (min 1) vs.\ 83.4 (min 79).}
+\evidence{lab14-shared-cached-mining/analysis/READ.md; reports/COLLAB-READ.md; reports/LJ-READ.md}
+
+\subsection{Official metrics}
+\todo{Collab Hits@50 +1.314\pp{} (3 seeds); Citation2: full-corpus \recall{10} and MRR up, official sampled MRR down ($-$0.454 $\times$100) -- decide framing; LiveJournal \recall{10} +1.06\pp.}
+\evidence{lab5 p15-adaptive-mining/analysis/INTERPRETATION.md; lab6-transfer/livejournal/analysis/RESULTS.md}
+
+\subsection{Mechanism}
+\todo{Query tracking: capping cuts harm incidence 14.64\%$\rightarrow$2.51\% / 10.81\%$\rightarrow$2.54\% / 8.77\%$\rightarrow$1.85\%; strict cohort regains top-10 hits for 95.3 / 84.2 / 89.0\%. Order-only frozen-batch experiments; recovery under continuation.}
+\evidence{lab12-query-tracking/README.md; lab8-exposure-timescale; lab9-controlled-recovery/repair-r5/analysis/complete/RESULTS.md}

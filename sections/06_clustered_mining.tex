@@ -1,0 +1,13 @@
+\section{Mining Negatives from Embedding Clusters}
+\label{sec:method}
+
+\subsection{Clustered-anchor batching}
+\todo{Cluster anchors by the current query embedding (node-cluster target 64); fill each batch from few clusters so in-batch negatives are regional; 50-update refresh windows; random negatives kept.}
+
+\subsection{A cached clustering signal}
+\todo{The training loop already computes query embeddings; cache them and re-cluster asynchronously; one-time bootstrap. Cost: $-$7\% GPU time vs.\ random including the bootstrap ($-$15\% without); fresh re-embedding +13\%.}
+\evidence{full-scale-cached-mining/analysis-overhead/READ.md; PAPER-NOTE.md}
+
+\subsection{Results on the production graph}
+\todo{Table: random vs.\ fresh/cached $\times$ uncapped/capped at 1, 2, 3 epochs, mean $\pm$ sd over seeds 1504--1506. Current: 3 epochs (seed 1506) random 34.78 vs.\ 36.38--36.53; 2 epochs (2 seeds) random 34.08 vs.\ 35.74--35.90. Cached within $\sim$0.1\pp{} of fresh. Capped vs.\ uncapped within noise, forward-reference Section~\ref{sec:capping}. No best-checkpoint selection.}
+\evidence{checkpoint-evaluation-r2/analysis-final/READ.md; full-scale-replicates/evaluation/analysis/READ.md}

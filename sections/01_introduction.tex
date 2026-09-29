@@ -1,0 +1,53 @@
+\section{Introduction}
+\label{sec:intro}
+
+% ---------------------------------------------------------------------------
+% PLAN. One paragraph per beat; each starts with a draft topic sentence, then
+% the evidence it needs. Numbers are placeholders until notes/STORY.md marks
+% them final (three full-scale seeds; exposure control).
+% ---------------------------------------------------------------------------
+
+% P1 -- Setting and why negatives matter.
+Embedding-based retrieval is the first stage of friend recommendation at social-network
+scale: a graph neural network embeds every user, and nearest-neighbour search over those
+embeddings proposes the few thousand candidates that later stages rank
+\cite{huang2020ebr,ying2018graph,johnson2019billion}.
+\todo{One sentence on our graph: $\sim$1B nodes, $\sim$100M users with positive labels; model trained contrastively with in-batch and random negatives \cite{yi2019sampling}.}
+The quality of such a model is set largely by the negatives it is trained against, and at
+this scale so is its cost: every negative must be encoded from its sampled neighbourhood.
+
+% P2 -- The conventional industry answer and its problem.
+\todo{The two standard ways to get harder negatives. (a) Logged exposures, candidates shown but not added, are the conventional industry source \cite{huang2020ebr}. (b) Negatives mined from an approximate-nearest-neighbour index of the current model \cite{xiong2021ance} need periodic re-embedding of the whole corpus, which at a billion nodes is a job in itself.}
+\todo{On our graph, exposure negatives hurt: adding them back lowers macro \recall{1000} by 0.35\pp{} (every ranking metric down), and removing them in an earlier production model gained 1.1\%. Why, in one clause, once the random-substitute control lands.}
+\evidence{exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md}
+
+% P3 -- The observation: embeddings already know the graph.
+We start from an observation about a model trained with random negatives only: its
+embedding space already follows the graph.
+\todo{Nodes that are close in the graph are close in embedding space (Figure~\ref{fig:locality}, to be measured: similarity vs.\ hop distance). Clustering anchors by embedding therefore puts graph neighbours in the same batch: anchors share 2$\times$ more one-hop neighbours and positives sit within one hop of another anchor 3$\times$ more often than in random batches.}
+Two consequences follow. In-batch negatives drawn from the same region are harder than random
+ones, and the batch's sampled subgraph shrinks because neighbourhoods overlap.
+\todo{$-$35\% sampled nodes per batch; 12--15\% faster training steps at full scale.}
+\evidence{small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
+
+% P4 -- The method and the internal result.
+\todo{Clustered-anchor batching: cluster anchors by their current embedding, fill each batch from a few clusters, refresh clusters every 50 updates from a cache the training loop already fills. Result at full scale: +1.7\pp{} macro \recall{1000} over random (+5\% relative), consistent across three seeds; the cached version keeps the gain and trains 7\% faster than random negatives, including the one-time cache bootstrap.}
+\evidence{full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md; full-scale-replicates/evaluation/analysis/READ.md; analysis-overhead/READ.md}
+
+% P5 -- The catch: concentration cuts both ways.
+The same concentration that makes clustered batches informative can also make them harmful.
+\todo{When positive supply is skewed, a few dense clusters fill whole batches; the model fits those regions and forgets the rest. On three public graphs, uncapped clustered mining ends 10--34\pp{} below random at \recall{1000}, with some late batches drawn from a single cluster.}
+\evidence{lab14-shared-cached-mining/analysis/READ.md; reports/COLLAB-READ.md; lab5 p14-p16 SCIENTIFIC-READ.md}
+
+% P6 -- The fix and when it matters.
+\todo{A per-cluster row cap bounds how much of any batch one cluster can take. It removes the collapse on all three public graphs, cuts query-level harm from 9--15\% of queries to about 2.5\%, and adds modest head-metric gains. A concentration statistic predicts when the cap matters: our production graph sits at the low end (largest cluster share 11\%), so capping is neutral there, and we run it enabled because it costs nothing.}
+\evidence{lab12-query-tracking/README.md; capping-regime/READ.md; queue-audit/READ.md}
+
+% P7 -- Contributions.
+\todo{Contributions list, final wording after the claims freeze:}
+\begin{itemize}
+  \item \todo{An observation, measured on a billion-node graph: random-trained embeddings are graph-local, which makes embedding-clustered batches both harder and cheaper to train on.}
+  \item \todo{Evidence that exposure negatives, the conventional industry source, hurt retrieval on this graph, with a controlled analysis of why.}
+  \item \todo{Clustered-anchor mining with a cached clustering signal: +1.7\pp{} macro \recall{1000} over random at full scale, at lower training cost than random negatives.}
+  \item \todo{A failure mode of clustered mining, regional forgetting under concentrated batches, and a per-cluster row cap that prevents it, with a concentration statistic that predicts when it is needed; validated on Collab, Citation2 and LiveJournal.}
+\end{itemize}

@@ -1,0 +1,104 @@
+# Story, organization and evidence map (working notes)
+
+Started 2026-09-28 evening PT. Lab records live under
+`/home/dsaini2/data/Research/BAGLRQs/v9/`, abbreviated `V/` below. Every number in the
+paper must trace to a file listed here. Prose goes in `sections/`, and these notes stay
+the single place where claims meet evidence.
+
+## Thesis, one sentence
+
+On a billion-node social graph, a model trained with random negatives already places graph
+neighbours close together in embedding space. Clustering anchors by those embeddings turns
+that locality into harder in-batch negatives and cheaper training steps, while the
+conventional industry source of hard negatives, exposures, hurts. The same concentration
+that makes clustered batches useful can make the model forget other regions on skewed
+graphs, and a per-cluster row cap prevents that. Where concentration is low, the cap costs
+nothing.
+
+## Arc (user's sketch, 2026-09-28) mapped to sections
+
+| # | Beat | Section file | Evidence status |
+|---|---|---|---|
+| 1 | Setting: billion-node graph, two-tower GNN retrieval, contrastive training | `03_setting.tex` | ready |
+| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready (mini measurement + full-scale logs); direct locality curve missing, see risk 1 |
+| 3 | Observation: exposure negatives, the conventional industry source, hurt; why | `05_exposure.tex` | effect ready (one pair); the *why* is pending the random-substitute control, see risk 2 |
+| 4 | Idea: cluster anchors by embedding to mine negatives; cached asynchronously it is almost free | `06_clustered_mining.tex` | quality: 2 seeds at 2 epochs + 1 seed at 3 epochs, third seed running; cost ready |
+| 5 | Concentration cuts both ways: regional forgetting | `07_concentration_capping.tex` | ready on public graphs; absent internally by construction |
+| 6 | Intervention: per-cluster row cap | `07_concentration_capping.tex` | ready (public); internal null explained by the concentration diagnostic |
+| 7 | Public benchmarks, capped vs uncapped, mechanism | `08_public.tex` | ready, with the metric caveats in risks 4 and 5 |
+
+Organization choice: narrative order (observation, idea, risk, fix, generality) rather than
+the classic Method / Experiments split. The internal results sit with the method, because the
+internal graph is where mining gains accuracy. The public graphs are where the risk and the fix
+show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
+"Observations", 6-7 into "Method", 8 plus the internal numbers into "Experiments".
+
+## Claims and evidence
+
+| Claim | Headline number(s) | Evidence file | Status |
+|---|---|---|---|
+| Graph scale | ~966M nodes (id map 965,969,407 rows, d0826); 104M positive-label sources; 211M distinct positive pairs | `V/lab13-internal-evidence/exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md`, `V/lab13-internal-evidence/README.md` | ready; clean edge count for d0826 still needed |
+| Evaluation panel | 38,960,484 queries; 156,768,105 positives; 85,318,537 candidates; Sep 11-13 labels; macro recall primary | `V/lab13-internal-evidence/evaluation/all-results/READ.md`, `.../evaluation/METRIC-DECISION.md` | ready |
+| Clustering by embedding co-locates graph regions | hop-1 nodes shared by >=2 roots 2.2% -> 4.7%; positives within one hop of another batch anchor 0.9% -> 2.6% | `V/lab13-internal-evidence/small-graph/batch-locality-r1/analysis/READ.md` | ready (mini) |
+| Clustered batches are cheaper | sampled nodes per batch -35.1% median; per step nodes -22.7%, sequences -16.3%; full scale 917,794 vs ~700k nodes, 4.40 s vs 3.60 s median step | same + `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md` | ready |
+| Exposure negatives hurt | add-back on d0826: macro R@1000 34.0862 -> 33.7399 (-0.3464 pp, -1.02% rel), every metric down; removal on d0731: +1.07%; harm concentrated on queries that own an exposure label (-0.72 pp vs +0.04 pp) | `V/lab13-internal-evidence/exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md` | effect: one pair, not compute-matched; why: pending |
+| Clustered mining beats random, full scale | 3 epochs, seed 1506: random 34.78 vs 36.38-36.53; 2 epochs, 2 seeds: random 34.08 vs 35.74-35.90 | `V/lab13-internal-evidence/full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md`, `V/lab13-internal-evidence/full-scale-replicates/evaluation/analysis/READ.md` | seed 1504 random at 2 epochs lands ~11:15 PM PT Sep 28; seed 1505 Sep 29 |
+| Cached mining keeps the gain | cached within ~0.1 pp of fresh at every point | same | ready |
+| Almost free | cached clustered training -7% GPU time vs random incl. one-time bootstrap, -15% excl.; fresh mining +13% | `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md`, `.../PAPER-NOTE.md` | ready |
+| Uncapped clustered mining collapses on skewed graphs | R@1000 vs random at mining end: Collab -10.16, Citation2 -34.41, LJ -10.56 pp; capped within -0.48..+0.24 | `V/lab14-shared-cached-mining/analysis/READ.md` | ready, one seed per dataset |
+| Collapse = few clusters per batch | last 100 updates, mean clusters per batch: Collab 20.4 (min 1) uncapped vs 83.4 (min 79) capped; LJ 25.1 (min 2) vs 67.1 (min 35) | `V/lab14-shared-cached-mining/reports/COLLAB-READ.md`, `.../LJ-READ.md` | ready |
+| Regional forgetting | all 48 imbalanced depletion settings worsen other-region loss and R@10; 46 also improve own-region loss; acute, largely recoverable | `V/lab5-batch-causality/p14-p16-coordination/SCIENTIFIC-READ.md` | ready |
+| Capping cuts query-level harm | harm incidence 14.64% -> 2.51% / 10.81% -> 2.54% / 8.77% -> 1.85% | `V/lab12-query-tracking/README.md`, `RESULTS.md` | ready |
+| Capping gains on public metrics | two seeds: Collab Hits@50 +2.69%, Citation2 R@10 +2.10%, LJ R@10 +4.25% (rel.); three seeds P15: Collab Hits@50 +1.314 pp | `V/lab5-batch-causality/PAPER-POSITION-2026-09-19.md`, `V/lab1-hardneg-www2027/runs/m22_scheduler_from_start.md`, `V/lab5-batch-causality/p15-adaptive-mining/analysis/INTERPRETATION.md` | ready, but see risk 4 |
+| Internal graph lacks the regime | data-prep cap 4 keeps 34.7% of rows; raw p99 82, max 3,380 positives per source; largest single-cluster share of a batch 11.4%; capped - uncapped -0.29..+0.21 pp at full scale | `V/lab13-internal-evidence/capping-regime/READ.md`, `V/lab13-internal-evidence/queue-audit/READ.md` | ready |
+
+## Risks and open decisions
+
+1. **The locality observation is indirect.** We measure that clustering by embedding groups
+   anchors that share neighbourhoods, but there is no direct "embedding similarity vs hop
+   distance" curve. A cheap figure would fix it: cosine similarity of the random-trained
+   full-scale model for pairs at hop 1, 2, 3 and random pairs. It is a strong candidate for
+   Figure 1 of the introduction.
+2. **The "why" of exposure harm is not established.** There are three open hypotheses:
+   delayed or censored positives, candidates broadcast to every query in the batch, and extra
+   negative pressure coupled with frequency correction. The random-substitute control is
+   training on Prism: 7 runs at steps 5,650-8,150 of 12,725 as of 7:57 PM PT Sep 28. The
+   add-back result is one pair and not compute-matched. The introduction should promise only
+   what the control delivers.
+3. **Forgetting and capping evidence is public-only.** The internal graph is low-concentration
+   by construction because data prep caps positives at 4 per source. Carry this with the
+   concentration-statistic table: public graphs high concentration with a capping benefit,
+   internal low concentration with no effect.
+4. **Citation2's official metric moves the wrong way.** Under P15, capping raises full-corpus
+   R@10 and MRR in all 3 seeds but lowers the official sampled MRR (-0.454 on the x100 scale,
+   all 3 seeds). The metric policy says each public dataset reports its established metric,
+   and for Citation2 that is sampled MRR. Decision needed: report both with the
+   candidate-universe explanation, or tell the Citation2 story through the collapse-prevention
+   comparison (lab14), where capped stays within 0.5 pp of random while uncapped loses 34 pp.
+5. **On public graphs capping prevents collapse more than it beats random.** In lab14, capped
+   is about random (within +/-0.5 pp R@1000), and a durable advantage over random is not
+   established (`V/lab11-long-random-tail/README.md`). So the public claim is safety plus
+   modest head-metric gains, and the accuracy gain over random is an internal-graph claim.
+   These two fit together, but the introduction must not blur them.
+6. **No online A/B result exists.** An applied-track reviewer will ask. Decide whether the
+   paper says so or targets a deployment.
+
+## Excluded from the manuscript (user decisions)
+
+- Source-batched NGAME runs, including the M0 result and the M11 internal arm built on the M0
+  checkpoint (2026-09-25).
+- The uncapped mini dataset, `V/lab13-internal-evidence/small-graph/uncapped-five-arm-r1/`,
+  which was artificial and uses a setting not used internally (2026-09-28).
+- PPA; Amazon-book / MF / LightGCN; LF-AmazonTitles; MIND (withdrawn); micro recall except as
+  a diagnostic.
+
+## Title candidates
+
+- Your Embeddings Already Know the Graph: Locality-Aware Negative Mining at Billion-Node Scale
+- Cluster, Cap, Mine: Cheap Hard Negatives for Billion-Node Graph Retrieval
+- Negatives from the Neighbourhood: Clustered Batching for Industrial Graph Retrieval
+
+Earlier titles, for reference: "Balancing Nodes Is Not Enough: Example Exposure in Graph
+Negative Mining" (`V/lab5-batch-causality/PAPER-CHECKPOINT-2026-09-21.md`); "Negative Mining
+for Graphs: Example Exposure, Interference, and Recovery"
+(`V/lab10-results-export/reviews/story-20260921/CURRENT-STORY.md`).

@@ -1,0 +1,54 @@
+\documentclass[sigconf,review,anonymous]{acmart}
+
+\usepackage{booktabs}
+\usepackage{xcolor}
+\emergencystretch=1em
+\input{macros}
+
+\title{\todo{Title} Locality-Aware Negative Mining for Billion-Node Graph Retrieval}
+
+\author{Anonymous Authors}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}}
+\email{anonymous@example.com}
+\renewcommand{\shortauthors}{Anonymous et al.}
+
+\setcopyright{acmlicensed}
+\settopmatter{printacmref=true}
+\acmConference[KDD '27]{Proceedings of the 33rd ACM SIGKDD Conference on Knowledge Discovery and Data Mining}{2027}{TBD}
+\acmYear{2027}
+\copyrightyear{2027}
+\acmDOI{10.1145/XXXXXXX.XXXXXXX}
+\acmISBN{978-1-4503-XXXX-X/2027/08}
+
+\begin{document}
+
+\input{sections/00_abstract}
+
+\ccsdesc[500]{Information systems~Recommender systems}
+\ccsdesc[500]{Information systems~Retrieval models and ranking}
+\ccsdesc[300]{Computing methodologies~Neural networks}
+\keywords{negative mining, contrastive learning, graph neural networks, embedding-based retrieval, friend recommendation}
+
+\maketitle
+
+\input{sections/01_introduction}
+\input{sections/02_related}
+\input{sections/03_setting}
+\input{sections/04_locality}
+\input{sections/05_exposure}
+\input{sections/06_clustered_mining}
+\input{sections/07_concentration_capping}
+\input{sections/08_public}
+\input{sections/09_lessons}
+\input{sections/10_conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references/references}
+
+\appendix
+\input{sections/11_appendix}
+
+\end{document}

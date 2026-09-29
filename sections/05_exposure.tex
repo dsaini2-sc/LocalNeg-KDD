@@ -1,0 +1,14 @@
+\section{Exposure Negatives Hurt}
+\label{sec:exposure}
+% Observation 2. Claim only what the controls support; do not call exposures false negatives.
+
+\subsection{The conventional source}
+\todo{What an exposure negative is (shown, not added, within the label window); why industry uses it \cite{huang2020ebr}; 59.5M stored exposure pairs on d0826.}
+
+\subsection{Effect}
+\todo{Add-back on d0826: macro \recall{1000} 34.09 $\rightarrow$ 33.74 ($-$0.35\pp), every metric down, Vertex and Prism agree ($-$0.346 / $-$0.348). Removal on d0731: +1.07\%. Harm concentrated on queries that own an exposure label ($-$0.72\pp{} vs.\ +0.04\pp).}
+\evidence{exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
+
+\subsection{Why}
+\todo{Pending: random-substitute control (same slots, uniform random users), 3 seeds. Add-back minus control isolates these particular candidates; control minus baseline isolates having more negatives. Hypotheses: delayed or censored positives (0.51\% of exposures are accepted within 7 days), broadcast to all queries in the batch, negative pressure coupled with logQ correction.}
+\evidence{exposure-ablation/CONTROL-DESIGN.md; exposure-ablation/prism-training/README.md}

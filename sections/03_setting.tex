@@ -1,0 +1,14 @@
+\section{Setting}
+\label{sec:setting}
+
+\subsection{Graph and task}
+\todo{Friend recommendation as retrieval. Graph: $\sim$966M nodes (d0826 id map), edge count TBD; 104M sources with positive labels, 211M distinct positive pairs, at most 4 positives per source after data preparation.}
+\evidence{exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; lab13 README.md}
+
+\subsection{Model and training}
+\todo{Graph-transformer encoder over sampled neighbourhoods; query decoder and candidate side; InfoNCE with in-batch and random negatives and logQ correction from count-min sketches; batch 2,048 per rank, 16 A100s, 3 epochs after a shared 200-update random prefix.}
+\evidence{BAGLNotes/03-model-loss-and-training-loop.md; full-scale-cached-mining/PLAN.md}
+
+\subsection{Evaluation}
+\todo{Frozen panel: 38,960,484 queries, 156,768,105 positives (Sep 11--13 labels), 85,318,537 candidates; exact search; macro recall@\{10,100,500,1000\} primary, plus ranking metrics. Serving budget is 1,000 candidates, so \recall{1000} is the headline.}
+\evidence{evaluation/all-results/READ.md; evaluation/METRIC-DECISION.md}

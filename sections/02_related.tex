@@ -1,0 +1,12 @@
+\section{Related Work}
+\label{sec:related}
+% Keep to three short paragraphs; position against the closest work, not a survey.
+
+\paragraph{Negatives for embedding-based retrieval.}
+\todo{In-batch and sampled negatives with frequency (logQ) correction \cite{yi2019sampling}; logged exposures as hard negatives in industrial search \cite{huang2020ebr}; index-mined negatives \cite{xiong2021ance,karpukhin2020dpr}.}
+
+\paragraph{Batch construction as negative mining.}
+\todo{Topic- or cluster-aware batch sampling \cite{hofstatter2021tasb}; mining-aware mini-batching for extreme classification \cite{dahiya2023ngame}; ANCE-Tele (see V/lab12-query-tracking/literature/SURVEY.md). Our difference: the cluster signal comes from the model's own embeddings, cached, on a graph where it also cuts encoder work.}
+
+\paragraph{Graph locality and training efficiency.}
+\todo{Cluster-GCN partitions the graph to shrink sampled subgraphs \cite{chiang2019clustergcn}; GraphSAGE and PinSage sampling \cite{hamilton2017inductive,ying2018graph}; forgetting under non-stationary batches \cite{mccloskey1989catastrophic}. Novelty limits: V/lab13-internal-evidence/small-graph/async-cached-mining/literature/SURVEY-2026-09-25.md.}
