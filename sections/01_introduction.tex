@@ -16,8 +16,8 @@ Adding exposure negatives to an otherwise identical training run lowers macro re
 ranking metric down, while filling the same slots with random users changes nothing: the harm comes from which users
 the exposures are, not from having more negatives (Section~\ref{sec:exposure}). Mining with the current model is expensive
 at this scale. From our measured inference rate and step times, refreshing an index of all users once per epoch and
-encoding one mined negative per training row would take about four times the GPU time of random training
-(Appendix~\ref{app:ance}).
+encoding one mined negative per training row would take about 1{,}290 A100-hours, 81 hours on our 16 GPUs, four times
+the 326 A100-hours of random training (Appendix~\ref{app:ance}).
 
 We start instead from a property of the model the production system already trains. In an embedding space learned
 with random negatives only, similarity follows the graph: a user's one-hop neighbours average a cosine similarity of
