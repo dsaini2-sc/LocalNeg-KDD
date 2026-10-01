@@ -83,7 +83,6 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
    modest head-metric gains, and the accuracy gain over random is an internal-graph claim.
    These two fit together, but the introduction must not blur them.
 6. **Resolved 2026-09-28: the GTv17 A/B is in the paper** (decisions below). Open: the two `\abtodo` placeholders in `sections/06_clustered_mining.tex`.
-7. **The deployed-model claim conflicts with the GTv17 records (flagged 2026-10-01).** The introduction, Section 6 and Section 7 say the deployed model is the cached, capped variant (user decision 2026-09-28 ~22:15 PT). GTv17's training config (`/home/dsaini2/data/Research/BAGLRQs/v2/runs/20260829-002700_dsaini2_v2lab24_perrank_4ep_m3072_r1/training_v2lab24_perrank_4ep_m3072_r1.yaml`, block `clustered_batching`) re-embeds every 200 batches with a 50-token prefix (41 refreshes) and has no cap or cache field; `v2/GTv17Overview.md` says the same. Either the text changes or the user confirms a newer deployed model.
 
 ## Decisions, 2026-09-28 evening (user)
 
@@ -121,7 +120,6 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 
 - **Shipped model = async cached capped.** The production NGAME model in the A/B is the cached,
   asynchronous, capped variant, so "capping is neutral on this graph and we run it enabled" is true.
-  (Conflicts with the GTv17 records, see risk 7.)
 - **The A/B is its own contribution bullet.**
 - **NGAME in the introduction or only in related work: decide later.** Decided 2026-09-30, see below.
 - **Public replicates:** two more seeds of the five arms (random, fresh/cached x uncapped/capped) on
@@ -136,6 +134,8 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 - **Motivate the exposure section with the cosine probe (same message).** Random-trained cosine to stored exposure negatives is about the same as to positives; done in the introduction, Section 5, Figure 1 and the appendix table.
 - **Fill to 8 pages, with an algorithm diagram (2026-09-30 ~09:52 PT).** Plan proposed, not yet approved ("do not edit just yet"); it is in `HANDOFF-2026-10-01.md`.
 - **Cost three-seed (2026-10-01 ~10:17 PT).** Done: `V/lab13-internal-evidence/full-scale-replicates/analysis-overhead/READ.md`.
+- **Deployed model and A/B numbers (2026-10-01 ~11:10 PT).** User: "The GTv17 we are flighting uses cached capped -- we will put A/B numbers for the cache capped version." Section 6.5 describes the cached, capped variant, and the user supplies its numbers. Settled; do not reopen it against older run records.
+- **Drive PDF (2026-10-01).** The 2026-09-29 Drive copy stays as it is for now.
 
 ## Open items
 
