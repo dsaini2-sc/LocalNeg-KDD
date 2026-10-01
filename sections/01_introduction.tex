@@ -13,9 +13,8 @@ neighbourhood must be sampled and encoded.
 neither works well on our graph. The first is logged exposures: suggested users who were not
 added~\cite{huang2020ebr}. Exposures are hard. To a model trained with random negatives, a suggestion the user passed
 over sits closer to the user than the user's own future friends do. Yet adding exposures as negatives to an otherwise
-identical run lowers macro recall@1000 by 0.28 points, with every ranking metric down. Filling the same slots with
-random users changes nothing. The harm comes from which users the exposures are, not from having more negatives
-(Section~\ref{sec:exposure}). The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
+identical run lowers macro recall@1000 by 0.28 points, with every ranking metric down (Section~\ref{sec:exposure}).
+The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
 means re-embedding candidates as the model changes. At our scale this is expensive. From our measured inference rate
 and step times, refreshing an index of all users once per epoch and encoding one mined negative per training row would
 take about 1{,}280 A100-hours. That is 80 hours on our 16 GPUs, nearly four times the 330 A100-hours of random training
