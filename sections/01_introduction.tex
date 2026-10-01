@@ -3,7 +3,7 @@
 
 \head{Friend retrieval at scale} Embedding-based retrieval is the first stage of friend recommendation at
 social-network scale. A graph neural network embeds every user from its sampled neighbourhood. Nearest-neighbour search
-over those embeddings then proposes the 1{,}000 candidates that later stages rank~\cite{huang2020ebr,ying2018graph,johnson2019billion}.
+over those embeddings then proposes the few hundred to a thousand candidates that later stages rank~\cite{huang2020ebr,ying2018graph,johnson2019billion}.
 Our graph has close to a billion users. The retrieval model is trained contrastively: each user is pulled towards the
 friends it went on to add and pushed away from negatives~\cite{yi2019sampling}. The negatives decide much of what such
 a model learns. At this scale they also decide what training costs, because every negative is a user whose
