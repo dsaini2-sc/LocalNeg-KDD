@@ -4,9 +4,8 @@
 All tables in this appendix are generated from the experiment records by \texttt{scripts/make\_tables.py}.
 
 \subsection{Production graph: every evaluation}
-Table~\ref{tab:app-internal} lists every full-scale evaluation at one, two and three epochs after the shared prefix, per seed and
-metric. The ordering of Table~\ref{tab:internal} holds at every cutoff: all four clustered arms beat random at recall@10, 100, 500 and
-1000, in MRR and in nDCG@10, at every point and in every seed.
+Table~\ref{tab:app-internal} lists every metric at one, two and three epochs after the shared prefix. The ordering of Table~\ref{tab:internal} holds at every cutoff: all four clustered arms beat random at recall@10, 100, 500 and
+1000, in MRR and in nDCG@10, at every point.
 \input{tables/app_internal}
 
 \subsection{Evaluation panel}
@@ -16,8 +15,8 @@ all. Ranking is exact over the candidates. Macro recall@$k$ is the per-query sha
 queries.
 
 \subsection{Training cost}
-Table~\ref{tab:app-cost} decomposes the full-scale wall clock. Fresh clustering exposes 18{,}200\,s of per-window inference; the cached
-planner exposes under 60\,s over the whole run and runs its clustering (1{,}600--1{,}760\,s in total) on a CPU thread while the GPU trains.
+Table~\ref{tab:app-cost} decomposes the full-scale wall clock. Fresh clustering exposes 19{,}221\,s of per-window inference and clustering; the
+cached planner exposes under 50\,s over the whole run and runs its clustering (1{,}580--1{,}710\,s in total) on a CPU thread while the GPU trains.
 Full-state checkpoints of the cached arms are larger because the 2.7\,GB per-worker cache is part of the resumable state.
 \input{tables/app_cost}
 
@@ -26,11 +25,11 @@ Full-state checkpoints of the cached arms are larger because the 2.7\,GB per-wor
 We estimate what ANCE-style mining~\cite{xiong2021ance} would cost on the production graph, from measured components only; we did not
 run it. Batches are random, each training row gets one negative mined from a nearest-neighbour index of the current model, and the index
 over all 966M users is refreshed once per epoch. Each refresh re-embeds every user and the 104M training sources at the rate the cache
-bootstrap measured, 16{,}275 users per second on 16 A100s: 877 GPU-hours over three refreshes. One extra encoded negative per row makes each step about 27\% slower. Adding the stored exposure negative, present for 57\% of
+bootstrap measured, 16{,}632 users per second on 16 A100s: 858 GPU-hours over three refreshes. One extra encoded negative per row makes each step about 27\% slower. Adding the stored exposure negative, present for 57\% of
 sources, raised trainer wall time by 15.6\%, and a linear model of step time in sampled nodes fitted to the four full-scale arms gives
-14--31\% for the footprint of one negative. The steps therefore cost about 415 GPU-hours against random batching's 326, and the batches
-are random, so none of the clustered-step saving applies. In total that is about 1{,}290 GPU-hours, 4.0 times random training;
-cached clustered batching uses 303, 0.93 times. Index build,
+14--31\% for the footprint of one negative. The steps therefore cost about 419 GPU-hours against random batching's 330, and the batches
+are random, so none of the clustered-step saving applies. In total that is about 1{,}280 GPU-hours, 3.9 times random training;
+cached clustered batching uses 299--301, 0.90--0.91 times. Index build,
 search and hosting are excluded, and more frequent refreshes, as ANCE uses, raise the re-embedding cost proportionally.
 
 \subsection{Exposure negatives}
@@ -39,7 +38,8 @@ stored exposure pairs coincide with requests accepted inside the training window
 \input{tables/app_exposure}
 
 \subsection{Embedding locality}
-Table~\ref{tab:app-locality} gives the locality measurement per seed, and the same measurement on the sampled graph for one model at
+Table~\ref{tab:app-locality} gives the full-scale locality measurement, averaged over the two random-negative models and including the users' stored
+exposure negatives, and the same measurement on the sampled graph for one model at
 three stages of training.
 \input{tables/app_locality}
 

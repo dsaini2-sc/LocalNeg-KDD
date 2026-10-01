@@ -15,12 +15,15 @@ slot-matched random control shows that the harm lies in which users they are, no
 
 \paragraph{Batch construction as negative mining.}
 Composing batches so that in-batch negatives are hard is an established alternative to mining them per example.
-TAS-Balanced clusters queries by topic and samples each batch from one cluster~\cite{hofstatter2021tasb}; NGAME clusters
-queries by their embeddings and forms mini-batches from clusters, making in-batch negatives hard at no mining cost in
-extreme classification~\cite{dahiya2023ngame}, and our scheduler uses its batch ordering. ANCE-Tele observes that
+TAS-Balanced clusters queries by topic and samples each batch from one cluster~\cite{hofstatter2021tasb}. NGAME, in
+extreme classification, periodically clusters the training points on their current embeddings into equal-size clusters
+and builds each mini-batch from a few random clusters, so that in-batch negatives are hard without a mining
+index~\cite{dahiya2023ngame}; our scheduler builds on this batch ordering. At every refresh NGAME re-embeds all
+training points with the current encoder, and because its clusters are balanced in data points, nothing bounds how
+many positive rows one cluster contributes to a batch. ANCE-Tele observes that
 refreshing hard negatives makes dense retrievers forget and counters it with negatives carried over from earlier
 iterations~\cite{sun2022ancetele}. We add three things these works do not address: on a graph, embedding clusters are
-graph regions, so clustered batches are also cheaper to encode; the clustering signal can be cached from training itself;
+graph regions, so clustered batches are also cheaper to encode; the clustering signal can be cached from training itself instead of re-embedded;
 and batch concentration is a failure mode of its own, regional forgetting, which a per-cluster cap prevents and a
 concentration statistic predicts.
 

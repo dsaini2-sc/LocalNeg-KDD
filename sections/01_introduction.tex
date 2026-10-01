@@ -12,12 +12,14 @@ neighbourhood must be sampled and encoded.
 Industry practice offers two ways to make negatives harder than random users. The first is logged exposures: users who
 were shown a suggestion and did not act on it~\cite{huang2020ebr}. The second is to mine negatives with the current
 model~\cite{xiong2021ance}, which means re-embedding candidates as the model changes. On our graph neither works well.
-Adding exposure negatives to an otherwise identical training run lowers macro recall@1000 by 0.35 points, with every
+Exposures are hard: to a model trained with random negatives, a suggestion the user passed over sits closer to the user
+than the user's own future friends do. Yet adding them as negatives to an otherwise identical training run lowers macro
+recall@1000 by 0.28 points, with every
 ranking metric down, while filling the same slots with random users changes nothing: the harm comes from which users
 the exposures are, not from having more negatives (Section~\ref{sec:exposure}). Mining with the current model is expensive
 at this scale. From our measured inference rate and step times, refreshing an index of all users once per epoch and
-encoding one mined negative per training row would take about 1{,}290 A100-hours, 81 hours on our 16 GPUs, four times
-the 326 A100-hours of random training (Appendix~\ref{app:ance}).
+encoding one mined negative per training row would take about 1{,}280 A100-hours, 80 hours on our 16 GPUs, nearly four times
+the 330 A100-hours of random training (Appendix~\ref{app:ance}).
 
 We start instead from a property of the model the production system already trains. In an embedding space learned
 with random negatives only, similarity follows the graph: a user's one-hop neighbours average a cosine similarity of
@@ -26,18 +28,17 @@ within the first 50 updates; an untrained encoder barely shows it. A user's neig
 the friends the user will add next. Two consequences follow. Grouping users by embedding groups
 them by graph region, so each user's in-batch negatives come from its own neighbourhood and are hard. And because
 grouped users share neighbours, the batch's sampled subgraph shrinks: clustered batches sample 35\% fewer nodes, and a
-clustered training step is 12--15\% faster at full scale (Section~\ref{sec:locality}).
+clustered training step is 15--17\% faster at full scale (Section~\ref{sec:locality}).
 
 Clustered-anchor batching turns this property into a training signal. Every 50 updates, the anchors of the next window
 are clustered by their query embeddings and each batch is built from a few clusters. The embeddings come from a cache
 that the training loop fills as a by-product, and the clustering runs on the CPU while the GPU trains. On the
-production graph, after three epochs, clustered batching raises macro recall at 10, 100, 500 and 1000 from 2.70\%, 12.2\%,
+production graph, after three epochs, clustered batching raises macro recall at 10, 100, 500 and 1000 from 2.71\%, 12.2\%,
 26.7\% and 34.8\% to 3.20--3.24\%, 13.6--13.7\%, 28.4--28.5\% and 36.4--36.5\%: relative gains of 18--20\%, 11--12\%,
-6--7\% and 5\%, consistent across three seeds. The cached version trains on 7\% fewer
+6--7\% and 5\%. The cached version trains on 9--10\% fewer
 GPU-hours than random batching, including the one-time pass that fills the cache (Section~\ref{sec:method}). In a
 ten-day online A/B test, the deployed model, trained with this mining and without exposure negatives, increased new
 friends made with bidirectional communication by 2.09\%.
-\todo{Decide whether NGAME~\cite{dahiya2023ngame} is named here or only in Section~\ref{sec:related}.}
 
 The concentration that makes clustered batches informative can also make them harmful. When a few clusters hold far
 more positive rows than the rest, the scheduler fills whole batches, and runs of batches, from one region. The model
@@ -57,8 +58,8 @@ Our contributions are:
         makes embedding-clustered batches both harder and cheaper to train on.
   \item Evidence that exposure negatives, the conventional industry source of hard negatives, hurt retrieval on this
         graph, with a slot-matched random control showing that the harm lies in the identity of the exposed users.
-  \item Clustered-anchor mining with a cached clustering signal: over random batching at full scale, +18--20\% relative
-        macro recall@10 and +5\% at recall@1000, at 7\% lower training cost.
+  \item Clustered-anchor mining with a cached clustering signal: over random batching at full scale, +18--19\% relative
+        macro recall@10 and +5\% at recall@1000, at 9--10\% lower training cost.
   \item An online A/B test of the deployed model: +2.09\% new friends made with bidirectional communication and
         +1.01\% new friends made.
   \item A failure mode of clustered mining, regional forgetting under concentrated batches, and a per-cluster row cap

@@ -11,8 +11,8 @@ and the batch is cheaper to encode.
 
 Training proceeds in windows of 50 updates. At the start of a window, each worker takes the positive rows it will
 train on in that window (102{,}400 rows at 2{,}048 rows per batch), clusters their distinct anchors by query
-embedding into balanced clusters of about 64 anchors with recursive two-means, and packs the clusters into batches
-following NGAME's batch ordering~\cite{dahiya2023ngame}, targeting 16 clusters per batch. All rows of an anchor stay
+embedding into balanced clusters of about 64 anchors with recursive two-means, and packs whole clusters, drawn in
+random order, into batches, targeting 16 clusters per batch. All rows of an anchor stay
 in its cluster, so an anchor's positives train together. Random negatives are kept (512 per worker, 8{,}192 per step),
 as is the frequency correction of the loss. The first 200 updates of every run use random batches; clustering starts
 from that shared prefix model, and every arm, random included, continues from the same prefix checkpoint.
@@ -32,33 +32,35 @@ window.
 \label{sec:method:cost}
 
 \begin{table}[t]
-  \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs). Mining and bootstrap
-  inference are charged to the method; checkpoint I/O and evaluation are excluded.}
+  \caption{Training cost at full scale over the same 15{,}479 updates (16 A100 GPUs), mean over three seeds; the cached
+  column spans its uncapped and capped arms. Mining and bootstrap inference are charged to the method; checkpoint I/O
+  and evaluation are excluded.}
   \label{tab:cost}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrr}
     \toprule
     & Random & Fresh clust. & Cached clust. \\
     \midrule
-    Seconds per training step & 4.74 & 4.18 & 4.04 \\
-    Exposed mining, s per run & 23 & 18{,}200 & 47--57 \\
-    Bootstrap inference, s & 0 & 0 & 5{,}641 \\
-    GPU-hours & 326 & 369 & 303 \\
-    Relative to random & -- & +13.0\% & $-$7.0\% \\
+    Seconds per training step & 4.80 & 4.10 & 3.98--4.01 \\
+    Exposed mining, s per run & 26 & 19{,}221 & 41--43 \\
+    Bootstrap inference, s & 0 & 0 & 5{,}459 \\
+    GPU-hours & 330 & 368 & 299--301 \\
+    Relative to random & -- & +11.3\% & $-$9.6 to $-$9.0\% \\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Because clustered batches are cheaper to encode (Section~\ref{sec:locality:cost}), clustered training steps are
-12--15\% faster than random ones: 4.74\,s per update for random batches, 4.18\,s for fresh clustering and 4.04\,s for
-cached clustering (Table~\ref{tab:cost}). Fresh clustering gives the saving back and more: its inference pass costs
-54\,s every 50 updates, 22\% of its training loop, so it costs 13\% more GPU time than random training. The cached
-version exposes 47--57\,s of planning over the whole run, 0.1\% of loop time, and after charging it the one-time
-bootstrap pass of 5{,}641\,s, it costs 7\% less GPU time than random training, 15\% less without the bootstrap. The
-bootstrap is 8\% of a three-epoch run and amortises with longer training. Full-state checkpoints are larger, because
-the 2.7\,GB per-worker cache is part of the resumable state (95\,s vs.\ 37\,s per save).
-% Cost accounting currently from seed 1506; add seeds 1504/1505 when their accounting is done.
-\evidence{full-scale-cached-mining/analysis-overhead/READ.md; PAPER-NOTE.md}
+15--17\% faster than random ones: 4.80\,s per update for random batches, 4.10\,s for fresh clustering and
+3.98--4.01\,s for cached clustering (Table~\ref{tab:cost}). Fresh clustering gives the saving back and more: its
+inference pass costs 57\,s every 50 updates, 23\% of its training loop with the clustering, so it costs 11\% more GPU
+time than random training. The cached version exposes about 40\,s of planning over the whole run, under 0.1\% of loop
+time, and after charging it the one-time bootstrap pass of 5{,}459\,s, it costs 9--10\% less GPU time than random
+training, 16--17\% less without the bootstrap. The bootstrap is 8\% of a three-epoch run and amortises with longer
+training. Full-state checkpoints are larger, because the 2.7\,GB per-worker cache is part of the resumable state
+(101\,s vs.\ 38\,s per save).
+% Three-seed cost accounting (seeds 1504-1506); seed 1506 alone is the earlier full-scale-cached-mining/analysis-overhead/READ.md.
+\evidence{full-scale-replicates/analysis-overhead/READ.md; full-scale-cached-mining/analysis-overhead/PAPER-NOTE.md}
 
 \subsection{Retrieval quality on the production graph}
 \label{sec:method:results}
@@ -66,13 +68,14 @@ the 2.7\,GB per-worker cache is part of the resumable state (95\,s vs.\ 37\,s pe
 \input{tables/internal}
 
 Clustered batching improves retrieval at every point of training (Table~\ref{tab:internal}). After three epochs,
-random training reaches 34.79\% macro recall@1000 and clustered training 36.38--36.53\%, a gain of 1.6--1.7 points,
-or 4.6--5.0\% relative. The gain is present from the first epoch (1.7--2.1 points) and does not close as training
+random training reaches 34.80\% macro recall@1000 and clustered training 36.39--36.50\%, a gain of 1.6--1.7 points,
+or 4.6--4.9\% relative. The gain is present from the first epoch (1.6--2.1 points) and does not close as training
 continues. The cached clustering signal costs almost nothing in quality: cached and fresh clustering differ by at most
-0.22 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within 0.2 points
-of the uncapped arm at every point. Across the three seeds every arm varies by at most 0.2 points, far less than the gap to random.
+0.28 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within 0.26 points
+of the uncapped arm at every point.
 We report the final model of every run; no checkpoint is selected.
-% Seeds per cell are in the header comment of tables/internal.tex; rerun scripts/make_tables.py as seeds land and update the gains quoted here.
+% Three-seed means (seeds 1504-1506, every cell complete 2026-09-30). The numbers quoted here, in the abstract, the introduction, the
+% conclusion and the production row of Table tab:concentration come from tables/internal.tex and tables/app_internal.tex.
 \evidence{full-scale-replicates/evaluation/analysis/READ.md; full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md}
 
 \subsection{Online A/B test}

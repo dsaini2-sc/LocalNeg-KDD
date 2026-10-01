@@ -13,3 +13,6 @@
 *.toc
 build/
 .DS_Store
+__pycache__/
+# figures are inputs, not build outputs
+!figures/*.pdf

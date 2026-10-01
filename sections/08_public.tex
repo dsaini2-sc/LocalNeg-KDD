@@ -4,7 +4,7 @@
 \subsection{Setup}
 
 We test the failure mode and the cap on three public graphs with skewed positive supply: ogbl-collab and
-ogbl-citation2~\cite{hu2020ogb}, and LiveJournal~\cite{leskovec2009lj}. Each graph uses a two-layer graph encoder with the same
+ogbl-citation2~\cite{hu2020ogb}, and LiveJournal~\cite{yang2012defining}. Each graph uses a two-layer graph encoder with the same
 two-tower InfoNCE loss and random negatives as production. Every run continues from a checkpoint trained with random
 negatives for 24{,}770, 88{,}500 and 201{,}000 updates, mines for 12{,}385,
 59{,}000 and 8{,}192 updates with the clustering refreshed every 500, 2{,}000 and 2{,}048 updates, and ends with 128

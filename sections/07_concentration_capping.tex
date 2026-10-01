@@ -47,7 +47,7 @@ such a window rather than silently relaxing the cap (Appendix~\ref{app:results})
     Collab & 20.2 & 1 & 14.4\% & 100\% & +9.2 \\
     Citation2 & 27.0 & 1 & 5.5\% & 100\% & +33.9 \\
     LiveJournal & 25.4 & 2 & 5.3\% & 90\% & +11.0 \\
-    Production & 52.8 & 16 & 4.3\% & 7.2\% & +0.1 \\
+    Production & 52.8 & 16 & 4.3\% & 7.2\% & +0.0 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -55,7 +55,7 @@ such a window rather than silently relaxing the cap (Appendix~\ref{app:results})
 What separates the graphs is the worst batch, not the average one (Table~\ref{tab:concentration}). On all three public
 graphs the uncapped scheduler reaches batches drawn from one or two clusters, and there the cap is worth 9 to 34 points of
 recall@1000. On the production graph no batch draws on fewer than 16 clusters and the same-cluster pair rate never exceeds 7.2\%,
-and the cap changes nothing measurable: capped and uncapped runs differ by at most 0.2 points at every
+and the cap changes nothing measurable: capped and uncapped runs differ by at most 0.26 points at every
 point of training (Table~\ref{tab:internal}). The reason is upstream of training. Data preparation keeps at most four
 positives per user, so a 64-anchor cluster can hold at most 256 rows against a 2{,}048-row batch; the raw friending
 supply, with a 99th percentile of 82 accepted requests per user over 14 days and a maximum of 3{,}380, would not be so

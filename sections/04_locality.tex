@@ -8,8 +8,8 @@ neighbourhood, so grouping users by embedding also groups them by graph region.
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.85\columnwidth]{figures/locality}
-  \caption{Random-trained embeddings are graph-local. Mean cosine similarity in the query embedding space between 20{,}000 users and targets at exactly 1, 2 and 3 hops, random users, and the users' own future friends (dashed). Two random-negative models trained from different seeds; 95\% intervals are narrower than the line width.}
-  \Description{Bar chart: cosine similarity falls from about 0.70 at one hop to 0.62 at two hops, 0.45 at three hops and 0.07 for random users; future friends sit at 0.61.}
+  \caption{Random-trained embeddings are graph-local. Mean cosine similarity in the query embedding space between 20{,}000 users and targets at exactly 1, 2 and 3 hops, random users, the users' own future friends (dashed) and their stored exposure negatives (dotted). Mean of two random-negative models; 95\% intervals are narrower than the line width.}
+  \Description{Bar chart: cosine similarity falls from about 0.70 at one hop to 0.62 at two hops, 0.45 at three hops and 0.07 for random users; future friends sit at 0.61 and exposure negatives at 0.69.}
   \label{fig:locality}
 \end{figure}
 
@@ -20,18 +20,19 @@ We sample 20{,}000 users from the evaluation panel and, for each, up to five tar
 one, two and three hops, five random users, and the user's own future friends. Distances are exact on the full graph:
 two-hop targets share a neighbour with the user and are not adjacent to it; three-hop targets share none. We compare
 the users with their targets by cosine similarity in the query embedding space, the space the clustering of
-Section~\ref{sec:method} uses, for two random-negative models trained to three epochs from different seeds.
+Section~\ref{sec:method} uses, averaged over two random-negative models trained to three epochs.
 
 Similarity falls steadily with graph distance (Figure~\ref{fig:locality}). One-hop neighbours average a cosine of
-0.704, two-hop targets 0.623, three-hop targets 0.446, and random users 0.072; the two seeds agree to within 0.001.
+0.704, two-hop targets 0.622, three-hop targets 0.446, and random users 0.072.
 Graph walks favour well-connected nodes, so we also subtract, for every pair, the mean similarity of random users of
 the same degree (log$_2$ bins): the gaps are $+0.63$, $+0.55$ and $+0.37$, so degree does not explain the effect. A
 one-hop pair is more similar than a random pair 98.9\% of the time, a three-hop pair 92.9\% of the time.
 
-The reference line in Figure~\ref{fig:locality} is the more telling number. A user's future friends, the positives the
-model is trained to retrieve, average 0.605, below the user's existing one-hop neighbours. To the model, the user's
+The dashed reference line in Figure~\ref{fig:locality} is the more telling number. A user's future friends, the positives the
+model is trained to retrieve, average 0.606, below the user's existing one-hop neighbours. To the model, the user's
 graph neighbourhood looks at least as much like a positive as the positives do. Negatives drawn from that neighbourhood
-are therefore hard, and random negatives, 0.53 below the positives on average, are not.
+are therefore hard, and random negatives, 0.53 below the positives on average, are not. The dotted line, the users'
+stored exposure negatives, sits higher still; we return to it in Section~\ref{sec:exposure}.
 
 The locality is learned rather than built into the encoder, even though the encoder pools each user's sampled
 neighbourhood. We repeated the measurement on the sampled graph of Section~\ref{sec:locality:batch} for one model at
@@ -73,6 +74,6 @@ clustering does not touch; per step, node-level work falls by 22.7\% and the num
 
 The production trainers show the same effect. At full scale a random batch samples 917{,}794 nodes, a clustered batch
 687{,}000 to 754{,}000, and the median time between batches drops from 4.40\,s to 3.60\,s, while the random-negative
-subgraph is unchanged at about 53{,}500 nodes in every arm. Over a full run, clustered training steps are 12--15\%
+subgraph is unchanged at about 53{,}500 nodes in every arm. Over a full run, clustered training steps are 15--17\%
 faster than random ones (Section~\ref{sec:method:cost}).
 \evidence{small-graph/batch-locality-r1/analysis/READ.md; full-scale-cached-mining/analysis-overhead/READ.md}
