@@ -20,9 +20,9 @@ nothing.
 | # | Beat | Section file | Evidence status |
 |---|---|---|---|
 | 1 | Setting: billion-node graph, two-tower GNN retrieval, contrastive training | `03_setting.tex` | ready |
-| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready: direct measurement at full scale, 2 seeds (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`); learned-vs-architectural control done 2026-09-29: learned within 50 updates (untrained 1-hop gap +0.06 vs +0.66) |
-| 3 | Observation: exposure negatives, the conventional industry source, hurt; why | `05_exposure.tex` | effect ready (one pair); the *why* is pending the random-substitute control, see risk 2 |
-| 4 | Idea: cluster anchors by embedding to mine negatives; cached asynchronously it is almost free | `06_clustered_mining.tex` | quality: 2 seeds at 2 epochs + 1 seed at 3 epochs, third seed running; cost ready |
+| 2 | Observation: random-trained embeddings are graph-local; clustering by embedding gives batch locality and cheaper steps | `04_locality.tex` | ready: direct measurement at full scale, 2 seeds (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`); learned-vs-architectural control done 2026-09-29: learned within 50 updates (untrained 1-hop gap +0.06 vs +0.66); exposure probe 2026-09-30 (`V/lab13-internal-evidence/embedding-locality-r1/exposure-probe/READ.md`) |
+| 3 | Observation: exposure negatives, the conventional industry source, hurt; why | `05_exposure.tex` | effect ready, three seeds, slot-matched random control neutral; motivated by the exposure probe; the *why* is the exposure session's, see risk 2 |
+| 4 | Idea: cluster anchors by embedding to mine negatives; cached asynchronously it is almost free | `06_clustered_mining.tex` | ready: quality three seeds (2026-09-30), cost three seeds (2026-10-01) |
 | 5 | Concentration cuts both ways: regional forgetting | `07_concentration_capping.tex` | ready on public graphs; absent internally by construction |
 | 6 | Intervention: per-cluster row cap | `07_concentration_capping.tex` | ready (public); internal null explained by the concentration diagnostic |
 | 7 | Public benchmarks, capped vs uncapped, mechanism | `08_public.tex` | ready, with the metric caveats in risks 4 and 5 |
@@ -40,11 +40,12 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 | Graph scale | ~966M nodes (id map 965,969,407 rows, d0826); 104M positive-label sources; 211M distinct positive pairs | `V/lab13-internal-evidence/exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md`, `V/lab13-internal-evidence/README.md` | ready; clean edge count for d0826 still needed |
 | Evaluation panel | 38,960,484 queries; 156,768,105 positives; 85,318,537 candidates; Sep 11-13 labels; macro recall primary | `V/lab13-internal-evidence/evaluation/all-results/READ.md`, `.../evaluation/METRIC-DECISION.md` | ready |
 | Clustering by embedding co-locates graph regions | hop-1 nodes shared by >=2 roots 2.2% -> 4.7%; positives within one hop of another batch anchor 0.9% -> 2.6% | `V/lab13-internal-evidence/small-graph/batch-locality-r1/analysis/READ.md` | ready (mini) |
-| Clustered batches are cheaper | sampled nodes per batch -35.1% median; per step nodes -22.7%, sequences -16.3%; full scale 917,794 vs ~700k nodes, 4.40 s vs 3.60 s median step | same + `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md` | ready |
-| Exposure negatives hurt | add-back on d0826: macro R@1000 34.0862 -> 33.7399 (-0.3464 pp, -1.02% rel), every metric down; removal on d0731: +1.07%; harm concentrated on queries that own an exposure label (-0.72 pp vs +0.04 pp) | `V/lab13-internal-evidence/exposure-ablation/HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md` | effect: one pair, not compute-matched; why: pending |
-| Clustered mining beats random, full scale (prose gate PASSED 23:20 PT Sep 28: seed 1504 at 2 epochs follows seed 1506 within 0.08 pp on every arm; gains +1.61..+1.74 pp) | 3 epochs, seed 1506: random 34.78 vs 36.38-36.53; 2 epochs, 2 seeds: random 34.08 vs 35.74-35.90 | `V/lab13-internal-evidence/full-scale-cached-mining/checkpoint-evaluation-r2/analysis-final/READ.md`, `V/lab13-internal-evidence/full-scale-replicates/evaluation/analysis/READ.md` | seed 1504 random at 2 epochs lands ~11:15 PM PT Sep 28; seed 1505 Sep 29 |
-| Cached mining keeps the gain | cached within ~0.1 pp of fresh at every point | same | ready |
-| Almost free | cached clustered training -7% GPU time vs random incl. one-time bootstrap, -15% excl.; fresh mining +13% | `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md`, `.../PAPER-NOTE.md` | ready |
+| Clustered batches are cheaper | sampled nodes per batch -35.1% median; per step nodes -22.7%, sequences -16.3%; full scale 917,794 vs ~700k nodes, 4.40 s vs 3.60 s median step (seed 1506); three seeds, loop seconds per step excl. checkpoint I/O: random 4.80 vs fresh 4.10, cached 3.98 / 4.01 (capped) | same + `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md`, `V/lab13-internal-evidence/full-scale-replicates/analysis-overhead/READ.md` | ready; the sampled-node and median-step numbers are seed 1506 only |
+| Exposure negatives hurt | add-back on d0826, three seeds: macro R@1000 34.07 -> 33.79 (-0.28 pp, -0.83% rel), every metric down; random control +0.01; removal on d0731: +1.07%; harm concentrated on queries that own an exposure label (-0.72 pp vs +0.04 pp) | `V/lab13-internal-evidence/exposure-ablation/READ-three-seeds.md` (its "What this does not yet say" section bounds the paper text), `HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md` | effect: three seeds (2026-09-30); why: the exposure session (`exposure-ablation/mechanism/README.md`, `why/READ.md`) |
+| Exposures sit where positives sit | random-trained query space, two models: cosine of the user to its stored exposure negative 0.692 vs 0.606 to its future friends, 0.704 at one hop; 59% of exposures are at exactly two hops (0.77) | `V/lab13-internal-evidence/embedding-locality-r1/exposure-probe/READ.md`, `metrics.json` | ready (2026-09-30) |
+| Clustered mining beats random, full scale | 3 epochs, three seeds: random 34.80 vs 36.39-36.50 macro R@1000 (+4.6-4.9% rel.), R@10 +18-20% rel.; seed sd <= 0.1 pp in every cell | `V/lab13-internal-evidence/full-scale-replicates/evaluation/analysis/READ.md`, `metrics.csv` there (read by `scripts/make_tables.py`) | ready, three seeds (all 15 cells per seed collected 2026-09-30) |
+| Cached mining keeps the gain | cached within 0.28 pp of fresh at every point (three seeds) | same | ready |
+| Almost free | cached clustered training -9 to -10% GPU time vs random incl. one-time bootstrap, -16 to -17% excl.; fresh mining +11% (three seeds) | `V/lab13-internal-evidence/full-scale-replicates/analysis-overhead/READ.md`, seed 1506: `V/lab13-internal-evidence/full-scale-cached-mining/analysis-overhead/READ.md`, `.../PAPER-NOTE.md` | ready |
 | Uncapped clustered mining collapses on skewed graphs | three seeds, R@1000 gap vs random at mining end: Collab -9.4 (fresh) / -8.0 (cached), Citation2 -34.4 / -23.0, LJ -10.7 / -14.1 pp; capped -0.1 / -0.1, -0.5 / -0.5, +0.3 / +0.2; full-corpus MRR (x100) capped +0.23/-0.07, +0.18/+0.16, +0.51/+0.53; official: Collab Hits@50 capped +1.1/+1.2, Citation2 sampled MRR -0.48/-0.39, LJ sampled MRR +0.1 | `V/lab14-shared-cached-mining/replicates-s2s3/READ.md` | ready, three seeds (2026-09-29) |
 | Collapse = few clusters per batch | last 100 updates, mean clusters per batch: Collab 20.4 (min 1) uncapped vs 83.4 (min 79) capped; LJ 25.1 (min 2) vs 67.1 (min 35) | `V/lab14-shared-cached-mining/reports/COLLAB-READ.md`, `.../LJ-READ.md` | ready |
 | Regional forgetting | all 48 imbalanced depletion settings worsen other-region loss and R@10; 46 also improve own-region loss; acute, largely recoverable | `V/lab5-batch-causality/p14-p16-coordination/SCIENTIFIC-READ.md` | ready |
@@ -54,13 +55,13 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 
 ## Risks and open decisions
 
-1. **Locality: measured directly (2026-09-28 evening).** Cosine in the query space 0.704 / 0.623 /
+1. **Resolved 2026-09-29.** The untrained-model control (mini graph, `V/lab13-internal-evidence/embedding-locality-r1/mini-control/`) shows the locality is learned, within 50 updates. History: **Locality: measured directly (2026-09-28 evening).** Cosine in the query space 0.704 / 0.623 /
    0.446 at exactly 1 / 2 / 3 hops vs 0.072 for random users; future friends 0.605; two seeds agree
    to 0.001; degree-matched gaps +0.63 / +0.55 / +0.37 (`V/lab13-internal-evidence/embedding-locality-r1/READ.md`,
    figure copied to `figures/locality.pdf`). Remaining gap: whether the locality is learned or comes
    from the encoder aggregating overlapping neighbourhoods. An untrained-model control through the
    same inference separates the two; it needs one evaluator-sized inference job.
-2. **The "why" of exposure harm is not established.** There are three open hypotheses:
+2. **Updated 2026-10-01: the add-back is three seeds and the slot-matched random control is neutral, so the harm lies in which users fill the slots; which property of those users causes it is the exposure session's open question (`V/lab13-internal-evidence/exposure-ablation/mechanism/README.md`). Write to the "Safe now" line of `READ-three-seeds.md` until it reports.** History: **The "why" of exposure harm is not established.** There are three open hypotheses:
    delayed or censored positives, candidates broadcast to every query in the batch, and extra
    negative pressure coupled with frequency correction. The random-substitute control is
    training on Prism: 7 runs at steps 5,650-8,150 of 12,725 as of 7:57 PM PT Sep 28. The
@@ -81,8 +82,8 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
    established (`V/lab11-long-random-tail/README.md`). So the public claim is safety plus
    modest head-metric gains, and the accuracy gain over random is an internal-graph claim.
    These two fit together, but the introduction must not blur them.
-6. **No online A/B result exists.** An applied-track reviewer will ask. Decide whether the
-   paper says so or targets a deployment.
+6. **Resolved 2026-09-28: the GTv17 A/B is in the paper** (decisions below). Open: the two `\abtodo` placeholders in `sections/06_clustered_mining.tex`.
+7. **The deployed-model claim conflicts with the GTv17 records (flagged 2026-10-01).** The introduction, Section 6 and Section 7 say the deployed model is the cached, capped variant (user decision 2026-09-28 ~22:15 PT). GTv17's training config (`/home/dsaini2/data/Research/BAGLRQs/v2/runs/20260829-002700_dsaini2_v2lab24_perrank_4ep_m3072_r1/training_v2lab24_perrank_4ep_m3072_r1.yaml`, block `clustered_batching`) re-embeds every 200 batches with a 50-token prefix (41 refreshes) and has no cap or cache field; `v2/GTv17Overview.md` says the same. Either the text changes or the user confirms a newer deployed model.
 
 ## Decisions, 2026-09-28 evening (user)
 
@@ -120,20 +121,25 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 
 - **Shipped model = async cached capped.** The production NGAME model in the A/B is the cached,
   asynchronous, capped variant, so "capping is neutral on this graph and we run it enabled" is true.
+  (Conflicts with the GTv17 records, see risk 7.)
 - **The A/B is its own contribution bullet.**
-- **NGAME in the introduction or only in related work: decide later.** Open.
+- **NGAME in the introduction or only in related work: decide later.** Decided 2026-09-30, see below.
 - **Public replicates:** two more seeds of the five arms (random, fresh/cached x uncapped/capped) on
   Collab, Citation2 and LiveJournal, then check the new seeds against the recorded single-seed numbers.
   The capping paragraphs will draw on this one consistent set of runs. Launched 22:17-22:33 PT Sep 28:
   `V/lab14-shared-cached-mining/replicates-s2s3/` (30 cells, one A100 each; read in `READ.md` there).
 
-## Open items (2026-09-29)
+## Decisions, 2026-09-29 to 2026-10-01 (user)
 
-- Online A/B details (traffic share, user count, retrieval stage, declining metrics, final numbers): owned by the
-  user, marked `\abtodo` (orange) in the source.
-- Waiting on runs: three-seed exposure table (seeds 1502-1503), three-seed full-scale table (seed 1505), cost
-  accounting for seeds 1504-1505.
-- Decisions: title; NGAME named in the introduction or only in related work.
+- **One set of numbers (2026-09-29 ~20:05 PT).** No per-seed numbers in the prose; first the mean of the seeds that had landed, then three-seed means as seed 1505 landed (2026-09-30).
+- **NGAME only in related work (2026-09-30 ~09:16 PT).** It is an extreme-classification paper with no caching and no capping; the method section describes the batch order without naming it.
+- **Motivate the exposure section with the cosine probe (same message).** Random-trained cosine to stored exposure negatives is about the same as to positives; done in the introduction, Section 5, Figure 1 and the appendix table.
+- **Fill to 8 pages, with an algorithm diagram (2026-09-30 ~09:52 PT).** Plan proposed, not yet approved ("do not edit just yet"); it is in `HANDOFF-2026-10-01.md`.
+- **Cost three-seed (2026-10-01 ~10:17 PT).** Done: `V/lab13-internal-evidence/full-scale-replicates/analysis-overhead/READ.md`.
+
+## Open items
+
+Moved to `notes/HANDOFF-2026-10-01.md`, which is current as of 2026-10-01.
 
 ## Writing convention (user, 2026-09-29 ~09:50 PT)
 
@@ -151,6 +157,8 @@ each number are tracked only in LaTeX source comments (header of tables/internal
   a diagnostic.
 
 ## Title candidates
+
+In the paper since 2026-09-30 (proposed, the user has not confirmed or changed it): **Harder Negatives, Cheaper Batches: Embedding-Clustered Training for Billion-Node Friend Retrieval**. Alternatives offered then: "Your Embeddings Already Know the Graph: Hard Negatives and Cheaper Batches for Billion-Node Friend Retrieval", "Hard Negatives for Free: Cached Clustered Batching for Billion-Node Friend Retrieval", "Locality-Aware Negative Mining for Billion-Node Graph Retrieval". Older candidates:
 
 - Your Embeddings Already Know the Graph: Locality-Aware Negative Mining at Billion-Node Scale
 - Cluster, Cap, Mine: Cheap Hard Negatives for Billion-Node Graph Retrieval
