@@ -1,31 +1,26 @@
 \section{Exposure Negatives Hurt}
 \label{sec:exposure}
 
-\subsection{The conventional source}
-\label{sec:exposure:source}
+\head{The conventional source} An exposure negative is a user who was shown to the source as a friend suggestion
+during the label window and was not added. Exposures are the standard industrial source of hard
+negatives~\cite{huang2020ebr}. They are free to log, they come from the production candidate distribution, and a user
+who saw a suggestion and passed on it looks like a genuine no. Our data preparation stores one exposure per source, the
+most-shown suggestion that was not added, 59.5M pairs in total. The historical trainer used them as extra candidates in
+the contrastive loss, next to the in-batch and random negatives.
 
-An exposure negative is a user who was shown to the source as a friend suggestion during the label window and was not
-added. Exposures are the standard industrial source of hard negatives~\cite{huang2020ebr}: they are free to log, they
-come from the production candidate distribution, and a user who saw a suggestion and passed on it looks like a genuine
-no. Our data preparation stores one exposure per source, the most-shown suggestion that was not added, 59.5M pairs in
-total, and the historical trainer used them as extra candidates in the contrastive loss, next to the in-batch and random
-negatives.
-
-Exposures are as hard as negatives get on this graph. For 4{,}253 panel users and their stored exposures, the
-exposure's cosine similarity to the user in the query space of the random-trained models of Section~\ref{sec:locality}
-averages 0.69, against 0.61 for the users' own future friends and 0.70 for their one-hop neighbours; compared user by
+Exposures are as hard as negatives get on this graph. We took 4{,}253 panel users and their stored exposures, in the
+query space of the random-trained models of Section~\ref{sec:locality}. The exposure's cosine similarity to the user
+averages 0.69, against 0.61 for the users' own future friends and 0.70 for their one-hop neighbours. Compared user by
 user, the exposure is 0.05 closer than the same user's future friends. Most exposures are friends of friends: 59\% lie
 exactly two hops away, where the similarity averages 0.77. To the model, an exposure looks like a positive. That makes
-it a hard negative, and it also suggests how it could hurt: pushing a user away from users that look like its
-positives can push it away from the positives as well.
+it a hard negative. It also suggests how it could hurt: pushing a user away from users that look like its positives can
+push it away from the positives as well.
 \evidence{embedding-locality-r1/exposure-probe/READ.md}
 
-\subsection{Effect}
-
 \begin{table}[t]
-  \caption{Exposure negatives on the production graph (macro recall, \%; frozen panel). The control fills the same
-  candidate slots with uniform random users. Mean over three seeds; re-evaluating one checkpoint moves every metric by at
-  most 0.002 points.}
+  \caption{Exposure negatives lower every metric, and random users in the same slots change nothing. Macro recall
+  (\%) on the frozen production panel; the control fills the same candidate slots with uniform random users. Mean over
+  three seeds; re-evaluating one checkpoint moves every metric by at most 0.002 points.}
   \label{tab:exposure}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrrr}
@@ -42,27 +37,25 @@ positives can push it away from the positives as well.
   \end{tabular}
 \end{table}
 
-Adding the stored exposures back to an otherwise identical training run lowers macro recall@1000 from 34.07\% to
-33.79\%, a relative loss of 0.8\%, and every cutoff and ranking metric falls with it (Table~\ref{tab:exposure}). The
-production recipe had already dropped exposure negatives after removing them gained 1.07\% relative recall@1000 on an
-older snapshot of the graph (0.93\% for a variant that also dropped them before sampling). The harm sits where the exposures are: in a
-1-in-1{,}000 sample of queries, those that own an exposure label lose 0.72 points in the add-back model and the others
-gain 0.04.
+\head{Effect} Adding the stored exposures back to an otherwise identical training run lowers macro recall@1000 from
+34.07\% to 33.79\%, a relative loss of 0.8\%. Every cutoff and ranking metric falls with it (Table~\ref{tab:exposure}).
+The production recipe had already dropped exposure negatives, after removing them gained 1.07\% relative recall@1000
+on an older snapshot of the graph. A variant that also dropped them before sampling gained 0.93\%. The harm sits where
+the exposures are. In a 1-in-1{,}000 sample of queries, those that own an exposure label lose 0.72 points in the
+add-back model, and the others gain 0.04.
 % Three-seed means (seeds 1501-1503) over the per-cell metrics behind exposure-ablation/READ-three-seeds.md.
 \evidence{exposure-ablation/READ-three-seeds.md; HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
 
-\subsection{Which users, not how many}
-
-Adding exposures changes two things at once: each batch gets more negatives, and those negatives are particular
-users. The control separates them. It keeps every exposure slot, at the same positions and shared with the same
-queries, and fills it with a uniform random user instead. The control matches the baseline at every cutoff, within
-0.015 points, so extra negative pressure and the slot structure cost nothing. The whole loss, 0.30 points of
-recall@1000 against the control, is carried by the identity of the exposed users.
+\head{Which users, not how many} Adding exposures changes two things at once. Each batch gets more negatives, and
+those negatives are particular users. The control separates the two. It keeps every exposure slot, at the same
+positions and shared with the same queries, and fills it with a uniform random user instead. The control matches the
+baseline at every cutoff, within 0.015 points, so extra negative pressure and the slot structure cost nothing. The
+whole loss, 0.30 points of recall@1000 against the control, is carried by the identity of the exposed users.
 
 The identity effect still bundles several properties of those users, and we do not separate them here. Some exposures
-are not negatives at all: 0.51\% of stored exposure pairs coincide with requests accepted within the training window,
-and another 0.51\% are accepted in the following seven days. Exposed users also come from the production candidate
-distribution, so unlike the random substitutes they sit close to the user (Section~\ref{sec:exposure:source}), tend to be popular, recur across batches, and receive a different
-frequency correction in the loss. What the control rules out is the explanation practitioners usually reach for, that
-exposures hurt only because they add negatives.
+are not negatives at all. Of the stored exposure pairs, 0.51\% coincide with requests accepted within the training
+window, and another 0.51\% are accepted in the following seven days. Exposed users also come from the production
+candidate distribution. Unlike the random substitutes, they sit close to the user (see above), tend to be popular,
+recur across batches, and receive a different frequency correction in the loss. What the control rules out is the
+explanation practitioners usually reach for, that exposures hurt only because they add negatives.
 \evidence{exposure-ablation/CONTROL-DESIGN.md; LABEL-AUDIT.md; audits-20260925/READ.md}

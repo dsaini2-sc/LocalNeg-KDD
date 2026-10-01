@@ -1,36 +1,34 @@
 \section{Related Work}
 \label{sec:related}
 
-\paragraph{Negatives for embedding-based retrieval.}
-Two-tower retrieval models are commonly trained with in-batch and sampled negatives, corrected for sampling frequency
-with a logQ term~\cite{yi2019sampling}. Harder negatives come from two places. Facebook's embedding-based search found
-that training on non-click impressions instead of random negatives cost 55\% absolute recall for people search, which it
-attributes to impressions over-representing hard cases, and that mined hard negatives help only when blended with random
-ones~\cite{huang2020ebr}. Dense text retrieval mines
-them from an approximate-nearest-neighbour index that is periodically rebuilt~\cite{xiong2021ance,karpukhin2020dpr} and
-has to filter the false negatives such mining brings in~\cite{qu2021rocketqa}. PinSage draws hard negatives from
-personalised-PageRank neighbourhoods with a curriculum~\cite{ying2018graph}.
-Our exposure result is the blended case on a friend graph: exposures added to random negatives still hurt, and a
-slot-matched random control shows that the harm lies in which users they are, not in the added negatives.
+\head{Negatives for embedding-based retrieval} Two-tower retrieval models are commonly trained with in-batch and
+sampled negatives, corrected for sampling frequency with a logQ term~\cite{yi2019sampling}. Harder negatives come from
+two places. The first is logged impressions. Facebook's embedding-based search found that training on non-click
+impressions instead of random negatives cost 55\% absolute recall for people search. It attributes this to impressions
+over-representing hard cases, and found that mined hard negatives help only when blended with random
+ones~\cite{huang2020ebr}. The second is mining with the model itself. Dense text retrieval mines negatives from an
+approximate-nearest-neighbour index that is periodically rebuilt~\cite{xiong2021ance,karpukhin2020dpr}, and has to
+filter the false negatives such mining brings in~\cite{qu2021rocketqa}. PinSage draws hard negatives from
+personalised-PageRank neighbourhoods with a curriculum~\cite{ying2018graph}. Our exposure result is the blended case on
+a friend graph. Exposures added to random negatives still hurt, and a slot-matched random control shows that the harm
+lies in which users they are, not in the added negatives.
 
-\paragraph{Batch construction as negative mining.}
-Composing batches so that in-batch negatives are hard is an established alternative to mining them per example.
-TAS-Balanced clusters queries by topic and samples each batch from one cluster~\cite{hofstatter2021tasb}. NGAME, in
-extreme classification, periodically clusters the training points on their current embeddings into equal-size clusters
-and builds each mini-batch from a few random clusters, so that in-batch negatives are hard without a mining
-index~\cite{dahiya2023ngame}; our scheduler builds on this batch ordering. At every refresh NGAME re-embeds all
-training points with the current encoder, and because its clusters are balanced in data points, nothing bounds how
-many positive rows one cluster contributes to a batch. ANCE-Tele observes that
-refreshing hard negatives makes dense retrievers forget and counters it with negatives carried over from earlier
-iterations~\cite{sun2022ancetele}. We add three things these works do not address: on a graph, embedding clusters are
-graph regions, so clustered batches are also cheaper to encode; the clustering signal can be cached from training itself instead of re-embedded;
-and batch concentration is a failure mode of its own, regional forgetting, which a per-cluster cap prevents and a
-concentration statistic predicts.
+\head{Batch construction as negative mining} Composing batches so that in-batch negatives are hard is an established
+alternative to mining them per example. TAS-Balanced clusters queries by topic and samples each batch from one
+cluster~\cite{hofstatter2021tasb}. NGAME, in extreme classification, periodically clusters the training points on their
+current embeddings into equal-size clusters. It builds each mini-batch from a few random clusters, so in-batch negatives
+are hard without a mining index~\cite{dahiya2023ngame}. Our scheduler builds on this batch ordering. Two gaps remain.
+At every refresh NGAME re-embeds all training points with the current encoder. And because its clusters are balanced in
+data points, nothing bounds how many positive rows one cluster contributes to a batch. ANCE-Tele observes that
+refreshing hard negatives makes dense retrievers forget, and counters it with negatives carried over from earlier
+iterations~\cite{sun2022ancetele}. We add three things these works do not address. On a graph, embedding clusters are
+graph regions, so clustered batches are also cheaper to encode. The clustering signal can be cached from training
+itself instead of re-embedded. And batch concentration is a failure mode of its own, regional forgetting, which a
+per-cluster cap prevents and a concentration statistic predicts.
 
-\paragraph{Graph locality and training efficiency.}
-Sampling-based graph neural networks encode each node from a sampled neighbourhood~\cite{hamilton2017inductive,ying2018graph},
-so the cost of a batch depends on how much its neighbourhoods overlap. Cluster-GCN exploits this by building batches
-from graph partitions~\cite{chiang2019clustergcn}. Clustered-anchor batching obtains a similar locality without a
-partitioner, from the model's own embeddings, and applies it to supervision rows rather than nodes. The regional
-forgetting we observe is an instance of catastrophic interference under non-stationary training
-data~\cite{mccloskey1989catastrophic}, here created by the batch scheduler.
+\head{Graph locality and training efficiency} Sampling-based graph neural networks encode each node from a sampled
+neighbourhood~\cite{hamilton2017inductive,ying2018graph}, so the cost of a batch depends on how much its neighbourhoods
+overlap. Cluster-GCN exploits this by building batches from graph partitions~\cite{chiang2019clustergcn}.
+Clustered-anchor batching obtains a similar locality without a partitioner, from the model's own embeddings. It applies
+that locality to supervision rows rather than nodes. The regional forgetting we observe is an instance of catastrophic
+interference under non-stationary training data~\cite{mccloskey1989catastrophic}, here created by the batch scheduler.

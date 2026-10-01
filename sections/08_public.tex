@@ -1,24 +1,23 @@
 \section{Public Benchmarks}
 \label{sec:public}
 
-\subsection{Setup}
+\head{Setup} We test the failure mode and the cap on three public graphs with skewed positive supply: ogbl-collab and
+ogbl-citation2~\cite{hu2020ogb}, and LiveJournal~\cite{yang2012defining}. Each graph uses a two-layer graph encoder
+with the same two-tower InfoNCE loss and random negatives as production. Every run continues from a checkpoint trained
+with random negatives for 24{,}770, 88{,}500 and 201{,}000 updates. It mines for 12{,}385, 59{,}000 and 8{,}192 updates,
+with the clustering refreshed every 500, 2{,}000 and 2{,}048 updates, and ends with 128 common random updates. Batches
+hold 476, 1{,}024 and 1{,}024 rows and target 79, 28 and 28 clusters, so the cap is 7, 37 and 37 rows per cluster. The
+five arms are random batching and clustered batching from fresh or cached embeddings, each uncapped or capped. Each of
+three seeds has its own warm-start checkpoint.
 
-We test the failure mode and the cap on three public graphs with skewed positive supply: ogbl-collab and
-ogbl-citation2~\cite{hu2020ogb}, and LiveJournal~\cite{yang2012defining}. Each graph uses a two-layer graph encoder with the same
-two-tower InfoNCE loss and random negatives as production. Every run continues from a checkpoint trained with random
-negatives for 24{,}770, 88{,}500 and 201{,}000 updates, mines for 12{,}385,
-59{,}000 and 8{,}192 updates with the clustering refreshed every 500, 2{,}000 and 2{,}048 updates, and ends with 128
-common random updates. Batches hold 476, 1{,}024 and 1{,}024 rows and target 79, 28 and 28 clusters, so the cap is 7, 37
-and 37 rows per cluster. The five arms are random batching and clustered batching from fresh or cached embeddings, each
-uncapped or capped. Each of three seeds has its own warm-start checkpoint.
-
-We report two kinds of metric. The headline ranks each validation positive against the full candidate corpus (235{,}868,
-2{,}927{,}963 and 3{,}997{,}962 nodes) with the other known positives masked, as recall@1000 and MRR. Next to it we report
-each benchmark's official metric: Hits@50 on Collab's official negatives, and MRR against 1{,}000 sampled negatives on
-Citation2 and LiveJournal.
+We report two kinds of metric. The headline ranks each validation positive against the full candidate corpus
+(235{,}868, 2{,}927{,}963 and 3{,}997{,}962 nodes) with the other known positives masked, as recall@1000 and MRR. Next
+to it we report each benchmark's official metric: Hits@50 on Collab's official negatives, and MRR against 1{,}000
+sampled negatives on Citation2 and LiveJournal.
 
 \begin{table*}[t]
-  \caption{Public graphs at the end of mining, mean over three seeds. $\Delta$\recall{1000}: full-corpus recall@1000
+  \caption{Uncapped clustered mining collapses on all three public graphs; capped mining stays with random training.
+  Public graphs at the end of mining, mean over three seeds. $\Delta$\recall{1000}: full-corpus recall@1000
   minus random at the same seed, points (random row: absolute). MRR: full-corpus MRR $\times 100$. Official: Collab
   Hits@50, Citation2 and LiveJournal sampled MRR $\times 100$. Seed standard deviations are at most 1.7 points for
   uncapped arms and 0.25 for capped and random arms.}
@@ -39,32 +38,30 @@ Citation2 and LiveJournal.
   \end{tabular}
 \end{table*}
 
-\subsection{Uncapped mining collapses, capped mining does not}
+\head{Uncapped mining collapses, capped mining does not} Without the cap, clustered mining fails on every graph and
+every seed (Table~\ref{tab:public}). At the end of mining it trails random training by 8.0 to 9.4 points of
+recall@1000 on Collab, 23.0 to 34.4 on Citation2 and 10.7 to 14.1 on LiveJournal. The official metrics fall with it:
+Collab's Hits@50 drops from 53.6 to 16.2. Its late batches are the concentrated batches of
+Table~\ref{tab:concentration}. Over the last 100 updates the uncapped scheduler averages 20 to 27 clusters per batch,
+and reaches batches drawn from one or two clusters on all three graphs. The capped scheduler never draws fewer than 34
+clusters, and capped mining stays within 0.51 points of random at recall@1000 on every graph. Caching the clustering
+signal does not change this picture: cached and fresh capped arms agree within a third of a point on every metric.
 
-Without the cap, clustered mining fails on every graph and every seed (Table~\ref{tab:public}). At the end of mining it
-trails random training by 8.0 to 9.4 points of recall@1000 on Collab, 23.0 to 34.4 on Citation2 and 10.7 to 14.1 on
-LiveJournal, and the official metrics fall with it, Collab's Hits@50 from 53.6 to 16.2. Its late batches are the
-concentrated batches of Table~\ref{tab:concentration}: over the last 100 updates the uncapped scheduler averages 20 to 27
-clusters per batch and reaches batches drawn from one or two clusters on all three graphs. The capped scheduler never draws fewer
-than 34 clusters, and capped mining stays within 0.51 points of random at recall@1000 on every graph. Caching the
-clustering signal does not change this picture: cached and fresh capped arms agree within a third of a point on every metric.
+The cap does more than prevent the collapse at the head of the ranking. Capped mining raises full-corpus MRR over
+random by 0.5 on LiveJournal and 0.2 on Citation2, in every seed, and Collab's official Hits@50 by 1.0 to 1.2 points.
+On Citation2 the official metric moves the other way: sampled MRR falls by 0.4 to 0.5 against random while full-corpus
+MRR rises. The official protocol ranks the positive against 1{,}000 random papers, the full-corpus metric against all
+2.9M. One reading fits both. Training on regional negatives separates the positive from its close competitors better,
+and from random papers slightly worse, and only the second shows in the sampled metric. We therefore headline the
+full-corpus numbers on every graph and report the official ones beside them.
 
-The cap does more than prevent the collapse at the head of the ranking. Capped mining raises full-corpus MRR over random
-on LiveJournal by 0.5 and on Citation2 by 0.2, in every seed, and Collab's official Hits@50 by 1.0 to 1.2 points. On
-Citation2 the official metric moves the other way: sampled MRR falls by 0.4 to 0.5 against random while full-corpus MRR
-rises. The official protocol ranks the positive against 1{,}000 random papers, the full-corpus metric against all 2.9M.
-One reading consistent with both is that training on regional negatives separates the positive from its close
-competitors better and from random papers slightly worse, and only the second shows in the sampled metric. We therefore headline the full-corpus numbers on every
-graph and report the official ones beside them.
-
-\subsection{Recovery and query-level harm}
-
-The collapse is recoverable. After the 128 common random updates, the uncapped arms trail random by 0.4 to 0.8 points on
-Collab and LiveJournal and 3.0 to 3.6 on Citation2, and the capped arms end within 0.5 points of random. The cap's value
-is therefore during and at the end of mining, where a production system would deploy the model, rather than a lasting
-advantage over random training. Tracking individual validation rows through an earlier set of mining runs on the same three graphs
-shows what the collapse is made of. At the end of uncapped mining, 14.6\%, 10.8\% and 8.8\% of Collab, Citation2 and
-LiveJournal rows are top-10 hits for random training and misses for the mined model; with the cap, 2.5\%, 2.5\% and 1.9\% do. Of the rows that were hits before mining
-and are lost under uncapped mining, 95\%, 84\% and 89\% are hits again after 512 random updates: the model forgets regions
-it had learned, and relearns them.
+\head{Recovery and query-level harm} The collapse is recoverable. After the 128 common random updates, the uncapped
+arms trail random by 0.4 to 0.8 points on Collab and LiveJournal and 3.0 to 3.6 on Citation2. The capped arms end
+within 0.5 points of random. The cap's value therefore lies during and at the end of mining, where a production system
+would deploy the model, rather than in a lasting advantage over random training. Tracking individual validation rows
+through an earlier set of mining runs on the same three graphs shows what the collapse is made of. At the end of
+uncapped mining, 14.6\%, 10.8\% and 8.8\% of Collab, Citation2 and LiveJournal rows are top-10 hits for random training
+and misses for the mined model. With the cap, 2.5\%, 2.5\% and 1.9\% are. Some rows were hits before mining and are
+lost under uncapped mining. Of those, 95\%, 84\% and 89\% are hits again after 512 random updates: the model forgets
+regions it had learned, and relearns them.
 \evidence{lab14-shared-cached-mining/replicates-s2s3/READ.md; lab12-query-tracking/README.md, RESULTS.md}

@@ -19,7 +19,7 @@ get = lambda arm, step, k='macro_recall_at_1000': [pct(r[k]) for r in internal i
 sd = max(st.stdev(get(a, s)) for a, _ in ARMS for s, _ in STEPS if len(get(a, s)) > 1)
 table('internal.tex', 'lrrr', 'Method & 1 epoch & 2 epochs & 3 epochs',
       [[n] + [f"{st.mean(get(a, s)):.2f}" for s, _ in STEPS] for a, n in ARMS],
-      f'Macro recall@1000 (\\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most {sd:.1f} points in every cell. All arms share a 200-update random prefix; epochs count the updates after it.',
+      f'Clustered batching beats random batching at every epoch. Macro recall@1000 (\\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most {sd:.1f} points in every cell. All arms share a 200-update random prefix; epochs count the updates after it.',
       'tab:internal')
 (OUT / 'internal.tex').write_text(f'% mean of seeds {", ".join(SEEDS)}; seeds per cell (arm: e1/e2/e3): ' + '; '.join(f"{a}: " + '/'.join(str(len(get(a, s))) for s, _ in STEPS) for a, _ in ARMS) + '\n' + (OUT / 'internal.tex').read_text())
 cols = [('macro_recall_at_10', '\\recall{10}'), ('macro_recall_at_100', '\\recall{100}'), ('macro_recall_at_500', '\\recall{500}'), ('macro_recall_at_1000', '\\recall{1000}'), ('mrr_at_1000', 'MRR'), ('ndcg_at_10', 'nDCG@10')]
