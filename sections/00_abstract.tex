@@ -1,15 +1,15 @@
 \begin{abstract}
 Embedding-based friend retrieval on a billion-node social graph is trained contrastively, and its negatives decide both
-what the model learns and what training costs. The conventional industrial source of hard negatives, logged exposures,
-hurts on this graph: adding them lowers macro recall@1000 by 0.28 points, while a slot-matched random control costs
-nothing, so the harm lies in which users are exposed. We start instead from the model production already trains. Its
-embeddings, learned with random negatives only, are graph-local: one-hop neighbours average a cosine similarity of 0.70
-with a user, random users 0.07. Clustering anchors on these embeddings therefore yields hard in-batch negatives and
-batches that sample 35\% fewer nodes. With the clustering signal cached from training itself, clustered batching raises
-macro recall@10 by 18--19\% and recall@1000 by 5\% at full scale while using 9--10\% fewer GPU-hours than random batching, and the
-deployed model increased new friends made with bidirectional communication by 2.09\% in an online A/B test. The same
-concentration can fail: on Collab, Citation2 and LiveJournal, uncapped clustered batches collapse onto single clusters
-and end far below random training on each benchmark's metric (Collab Hits@50 53.6 to 16--19). A per-cluster row cap
-prevents the collapse in every seed and ends ahead of random training,
-and the concentration of the uncapped plan shows in advance whether a graph needs it.
+what the model learns and what training costs. The usual sources of hard negatives fall short at this scale. Logged
+exposures hurt: adding them lowers macro recall@1000 by 0.28 points, while a slot-matched random control costs nothing.
+Mining with the current model would cost nearly four times random training. We develop clustered-anchor batching, which
+starts from the model production already trains. Its embeddings, learned with random negatives only, are graph-local:
+one-hop neighbours average a cosine similarity of 0.70 with a user, random users 0.07. Clustering anchors on these
+embeddings yields hard in-batch negatives and batches that sample 35\% fewer nodes. We cache the clustering signal from
+training itself. At full scale, cached clustered batching raises macro recall@10 by 18--19\% and recall@1000 by 5\%,
+on 9--10\% fewer GPU-hours than random batching. In a ten-day online A/B test, the deployed model increased new friends
+made with bidirectional communication by 2.09\%. Concentrated batches can also fail. On Collab, Citation2 and
+LiveJournal, uncapped clustered batching reaches batches drawn from one or two clusters, and Collab Hits@50 falls from
+53.6 to 16--19. A per-cluster row cap prevents the collapse in every seed and ends ahead of random training on each
+benchmark's own metric. The concentration of the uncapped plan shows in advance whether a graph needs the cap.
 \end{abstract}

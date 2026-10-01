@@ -136,6 +136,7 @@ show up. Alternative if reviewers want the classic shape: fold sections 4-5 into
 - **Cost three-seed (2026-10-01 ~10:17 PT).** Done: `V/lab13-internal-evidence/full-scale-replicates/analysis-overhead/READ.md`.
 - **Deployed model and A/B numbers (2026-10-01 ~11:10 PT).** User: "The GTv17 we are flighting uses cached capped -- we will put A/B numbers for the cache capped version." Section 6.5 describes the cached, capped variant, and the user supplies its numbers. Settled; do not reopen it against older run records.
 - **Drive PDF (2026-10-01).** The 2026-09-29 Drive copy stays as it is for now.
+- **Style (2026-10-01 ~11:25 PT).** Write to `BAGLRQs/papers/LocalNeg-STYLE.md`: "we", short sentences, direct claims, bold run-in heads, claim captions, a measured number behind every design choice. Keep the narrative section order, the contributions list (A/B its own bullet) and Lessons for Practitioners; do not restructure into DeepXML's framework, algorithm, experiments order.
 
 ## Open items
 
