@@ -38,11 +38,24 @@ negatives, with gains at every cutoff. The whole harm lies in pairing each expos
 % Three-seed means (seeds 1501-1503); decomposition intervals in exposure-ablation/mechanism/READ.md.
 \evidence{exposure-ablation/mechanism/READ.md, MECHANISM.md, mechanism.json}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/exposure_proximity}
+  \caption{The own-source penalty hurts most where the graph is most informative. Change in the share of future
+  friends retrieved at 1{,}000, by mutual friends between the user and the future friend; 1.22M future friendships,
+  mean over three seeds with 95\% intervals. Red: exposure as a negative for its own source only, minus exposures
+  encoded but never a negative. Blue: exposures shuffled to other sources, minus the historical recipe.}
+  \Description{Grouped bar chart over six mutual-friend bins. Red bars are negative, smallest at no mutual friend
+  (about minus 0.4) and largest at 2 to 9 mutual friends (about minus 1.9). Blue bars mirror them, from plus 0.3 to
+  plus 2.0.}
+  \label{fig:exposure-proximity}
+\end{figure}
+
 \head{Why the pairing hurts} A stored exposure is as close to its source in the graph as a future friend is. Half of
 the pairs share a mutual friend, and they average 4.1 common friends; (query, future friend) pairs share one 36\% of
 the time and average 4.3. Shuffled pairs almost never share one (0.08\%). Penalising a user against such a suggestion
 teaches the model that graph closeness is not evidence of friendship, the very signal retrieval relies on. The loss
-follows graph closeness accordingly. In a sample of 1.22M future friendships, the own-source penalty costs 1.8 to 1.9
+follows graph closeness accordingly (Figure~\ref{fig:exposure-proximity}). In a sample of 1.22M future friendships, the own-source penalty costs 1.8 to 1.9
 points of recall@1000 for future friends with 2 to 9 mutual friends, and 0.4 for those with none. At recall@10, future
 friends with no mutual friend lose nothing. Few exposures are positives in disguise: 0.51\% of stored exposure pairs
 coincide with requests accepted within the training window, and another 0.51\% are accepted in the following seven
