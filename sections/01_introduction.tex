@@ -27,21 +27,20 @@ take about 1{,}280 A100-hours. That is 80 hours on our 16 GPUs, nearly four time
 In an embedding space learned with random negatives only, embedding similarity follows the graph. A user's one-hop
 neighbours average a cosine similarity of 0.70 with the user, three-hop users 0.45 and random users 0.07
 (Figure~\ref{fig:locality}). The structure is learned: an untrained encoder barely shows it. 
-A user's neighbours are even closer to the user than the friends the user will add next. Two consequences make the model more accurate and its training cheaper.
+A user's neighbours are even closer to the user than the friends the user will add next. This property has two consequences that we leverage for more accurate and faster training.
 First, grouping users by embedding groups them by graph region, so each user's in-batch negatives come from its own
 neighbourhood and are hard. Second, grouped users share neighbours, so the batch's sampled subgraph shrinks. Clustered
 batches sample 35\% fewer nodes, and a clustered training step is 15--17\% faster at full scale
 (Section~\ref{sec:locality}).
 
-\head{Clustered-anchor batching} Clustered-anchor batching turns this property into a training signal. Every 50
-updates, we cluster the anchors of the next window by their query embeddings and build each batch from a few clusters.
-The embeddings come from a cache that the training loop fills as a by-product, and the clustering runs on the CPU while
-the GPU trains. On the production graph, after three epochs, clustered batching raises macro recall at 10, 100, 500 and
-1000 from 2.71\%, 12.2\%, 26.7\% and 34.8\% to 3.20--3.24\%, 13.6--13.7\%, 28.4--28.5\% and 36.4--36.5\%. These are
-relative gains of 18--20\%, 11--12\%, 6--7\% and 5\%. The cached version trains on 9--10\% fewer GPU-hours than random
-batching, including the one-time pass that fills the cache (Section~\ref{sec:method}). In a ten-day online A/B test,
-the deployed model, trained with this mining and without exposure negatives, increased new friends made with
-bidirectional communication by 2.09\%.
+\head{Clustered-anchor batching} Using clustered anchors to create batches turns this property into a training signal;
+we call the method \ours{}. Periodically, we cluster the anchors of the next window by their query embeddings and build
+each batch from a few clusters. The embeddings come from a cache that the training loop fills as a by-product, and the
+clustering runs on the CPU while the GPU trains. On the production graph, after three epochs, \ours{} raises macro recall
+at 10, 100, 500 and 1000 from 2.71\%, 12.2\%, 26.7\% and 34.8\% to 3.20\%, 13.6\%, 28.4\% and 36.4\%. These are relative
+gains of 18\%, 11\%, 6\% and 5\%. It trains on 9\% fewer GPU-hours than random batching, including the one-time pass that
+fills the cache (Section~\ref{sec:method}). In an online A/B test on live app traffic, the deployed model, trained with
+\ours{} and without exposure negatives, increased new friends made with bidirectional communication by 2.09\%.
 
 \head{Concentration cuts both ways} The concentration that makes clustered batches informative can also make them
 harmful. When a few clusters hold far more positive rows than the rest, the scheduler fills whole batches, and runs of
