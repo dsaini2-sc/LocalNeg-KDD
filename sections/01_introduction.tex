@@ -44,16 +44,16 @@ fills the cache (Section~\ref{sec:method}). In an online A/B test on live app tr
 
 \head{Concentration cuts both ways} The concentration that makes clustered batches informative can also make them
 harmful. When a few clusters hold far more positive rows than the rest, the scheduler fills whole batches, and runs of
-batches, from one region. The model then fits that region and forgets the others. On Collab, Citation2 and
-LiveJournal, uncapped clustered mining ends far below random training on each benchmark's own metric. Collab's Hits@50
-falls from 53.6 to 16--19. Full-corpus MRR ($\times 100$) falls from 7.6 to 3.4--4.4 on Citation2 and from 15.2 to
-11.6--12.4 on LiveJournal. Its worst late batches draw on one or two clusters (Section~\ref{sec:public}). A
-per-cluster row cap bounds the rows any one cluster may contribute to a batch. It removes the collapse on all three
-graphs in every seed, and capped mining ends ahead of random training. Hits@50 on Collab rises by 1.0--1.2 points, and
-full-corpus MRR by 0.2 on Citation2 and 0.5 on LiveJournal. Whether a graph needs the cap shows in how concentrated
-its uncapped batches become. Our production graph sits at the safe end, because data preparation keeps at most four
-positives per user. There the cap is neutral, and the deployed model runs with it at no cost
-(Section~\ref{sec:capping}).
+batches, from one region. The model then fits that region and forgets the others. On the public Collab, Citation2 and
+LiveJournal benchmarks, clustered batching without a cap ends far below random training on each benchmark's standard
+metric. Collab's Hits@50 falls from 53.6 to 18.8, and full-corpus MRR ($\times 100$) falls from 7.6 to 4.4 on Citation2
+and from 15.2 to 11.5 on LiveJournal. Its worst late batches draw on one or two clusters (Section~\ref{sec:public}).
+\ours{} therefore caps the rows any one cluster may contribute to a batch. The cap removes the collapse on all three
+graphs in every seed, and \ours{} ends ahead of random training: Hits@50 on Collab rises by 1.2 points, and full-corpus
+MRR by 0.2 on Citation2 and 0.5 on LiveJournal. Whether a graph needs the cap can be read off before training, from how
+concentrated its uncapped batches become. Our production graph sits at the safe end, because the friending dataset has
+at most four positives per user. There the cap has little to bound and is neutral, and the deployed model runs with it
+at no cost (Section~\ref{sec:capping}).
 
 \head{Contributions}
 \begin{itemize}
