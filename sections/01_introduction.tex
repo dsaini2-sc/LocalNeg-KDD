@@ -13,8 +13,9 @@ neighbourhood must be sampled and encoded.
 neither works well on our graph. The first is logged exposures: suggested users who were not
 added~\cite{huang2020ebr}. Exposures are hard. To a model trained with random negatives, a suggestion the user passed
 over sits closer to the user than the user's own future friends do. Yet as negatives they hurt: adding them lowers macro
-recall@1000 by 0.28 points. The same exposures cut both ways. Used against the user they were shown to, they cost 0.49
-points; given to other users, they gain 0.43. A user's own suggestion is as close to it in the graph as its future
+recall@1000 by 0.28 points. The same exposures cut both ways. As a negative only for the user it was shown to, an exposure
+costs 0.49 points; reassigned as a negative for a different user, it gains 0.43, both against training without
+exposures. A user's own suggestion is as close to it in the graph as its future
 friends, so penalising it teaches the model to discount graph proximity (Section~\ref{sec:exposure}).
 The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
 means re-embedding candidates as the model changes. At our scale this is expensive. From our measured inference rate
