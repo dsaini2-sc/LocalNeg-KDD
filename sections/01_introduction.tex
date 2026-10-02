@@ -15,7 +15,7 @@ added~\cite{huang2020ebr}. Exposures are hard. To a model trained with random ne
 over sits closer to the user than the user's own future friends do. Yet as negatives they hurt: adding them lowers macro
 recall@1000 by 0.28 points. The same exposures cut both ways. As a negative only for the user it was shown to, an exposure
 costs 0.49 points; reassigned as a negative for a different user, it gains 0.43, both against training without
-exposures. A user's own suggestion is as close to it in the graph as its future
+exposure negatives. A user's own suggestion is as close to it in the graph as its future
 friends, so penalising it teaches the model to discount graph proximity (Section~\ref{sec:exposure}).
 The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
 means re-embedding candidates as the model changes. At our scale this is expensive. From our measured inference rate
@@ -23,11 +23,11 @@ and step times, refreshing an index of all users once per epoch and encoding one
 take about 1{,}280 A100-hours. That is 80 hours on our 16 GPUs, nearly four times the 330 A100-hours of random training
 (Appendix~\ref{app:ance}).
 
-\head{Embeddings already know the graph} We start instead from a property of the model the production system already
-trains. In an embedding space learned with random negatives only, similarity follows the graph. A user's one-hop
+\head{Embeddings already know the graph} We start instead from a property of the model deployed in production. 
+In an embedding space learned with random negatives only, embedding similarity follows the graph. A user's one-hop
 neighbours average a cosine similarity of 0.70 with the user, three-hop users 0.45 and random users 0.07
-(Figure~\ref{fig:locality}). The structure is learned within the first 50 updates; an untrained encoder barely shows
-it. A user's neighbours are even closer to the user than the friends the user will add next. Two consequences follow.
+(Figure~\ref{fig:locality}). The structure is learned: an untrained encoder barely shows it. 
+A user's neighbours are even closer to the user than the friends the user will add next. Two consequences make the model more accurate and its training cheaper.
 First, grouping users by embedding groups them by graph region, so each user's in-batch negatives come from its own
 neighbourhood and are hard. Second, grouped users share neighbours, so the batch's sampled subgraph shrinks. Clustered
 batches sample 35\% fewer nodes, and a clustered training step is 15--17\% faster at full scale
