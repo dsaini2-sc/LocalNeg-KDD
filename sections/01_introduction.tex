@@ -48,8 +48,8 @@ batches, from one region. The model then fits that region and forgets the others
 LiveJournal benchmarks, clustered batching without a cap ends far below random training on each benchmark's standard
 metric. Collab's Hits@50 falls from 53.6 to 18.8, and full-corpus MRR ($\times 100$) falls from 7.6 to 4.4 on Citation2
 and from 15.2 to 11.5 on LiveJournal. Its worst late batches draw on one or two clusters (Section~\ref{sec:public}).
-\ours{} therefore caps the rows any one cluster may contribute to a batch. The cap removes the collapse on all three
-graphs in every seed, and \ours{} ends ahead of random training: Hits@50 on Collab rises by 1.2 points, and full-corpus
+To prevent this, we introduce \rowcap{}, a per-cluster row cap within \ours{} that bounds the rows any one cluster
+may contribute to a batch. \rowcap{} removes the collapse on all three graphs in every seed, and \ours{} ends ahead of random training: Hits@50 on Collab rises by 1.2 points, and full-corpus
 MRR by 0.2 on Citation2 and 0.5 on LiveJournal. Whether a graph needs the cap can be read off before training, from how
 concentrated its uncapped batches become. Our production graph sits at the safe end, because the friending dataset has
 at most four positives per user. There the cap has little to bound and is neutral, and the deployed model runs with it
@@ -62,11 +62,12 @@ at no cost (Section~\ref{sec:capping}).
   \item Evidence that exposure negatives, the conventional industry source of hard negatives, hurt retrieval on this
         graph, and why: penalising each user against its own graph-close suggestion teaches the model to discount graph
         proximity. Given to other users, the same exposures gain 0.43 points of recall@1000.
-  \item \ours{}: clustered-anchor batching with a cached clustering signal and a per-cluster row cap. Over random
+  \item \ours{}: clustered-anchor batching with a cached clustering signal and the row cap below. Over random
         batching at full scale, it gains 18\% relative macro recall@10 and 5\% at recall@1000, at 9\% lower training
         cost.
   \item An online A/B test of the deployed model: +2.09\% new friends made with bidirectional communication and
         +1.01\% new friends made.
-  \item A failure mode of clustered mining, regional forgetting under concentrated batches. A per-cluster row cap
-        prevents it on three public graphs, and a batch-concentration statistic shows when the cap is needed.
+  \item A failure mode of clustered mining, regional forgetting under concentrated batches, and \rowcap{}, a
+        per-cluster row cap that prevents it on three public graphs. A batch-concentration statistic shows in advance
+        when the cap is needed.
 \end{itemize}

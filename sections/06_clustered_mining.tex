@@ -14,7 +14,7 @@ train on in that window: 102{,}400 rows at 2{,}048 rows per batch. It clusters t
 embedding into balanced clusters of about 64 anchors with recursive two-means. It then packs whole clusters, drawn in
 random order, into batches, targeting 16 clusters per batch. All rows of an anchor stay in its cluster, so an anchor's
 positives train together. Random negatives are kept (512 per worker, 8{,}192 per step), as is the frequency correction
-of the loss. A per-cluster row cap bounds the rows any one cluster contributes to a batch (Section~\ref{sec:capping}).
+of the loss. \rowcap{}, a per-cluster row cap, bounds the rows any one cluster contributes to a batch (Section~\ref{sec:capping}).
 The first 200 updates of every run use random batches. Clustering starts from that shared prefix model,
 and every arm, random included, continues from the same prefix checkpoint.
 

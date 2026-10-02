@@ -17,7 +17,7 @@ $-$0.03, +0.70 and +1.23 points on Citation2. The harm is acute rather than perm
 the severe-order gaps shrink to 0.01 and 0.05 points.
 \evidence{lab5-batch-causality/p14-p16-coordination/SCIENTIFIC-READ.md}
 
-\head{A per-cluster row cap} The cap bounds how many positive rows any one cluster may contribute to a batch. With a
+\head{\rowcap{}, a per-cluster row cap} \rowcap{} bounds how many positive rows any one cluster may contribute to a batch. With a
 batch of $B$ rows and a target of $k$ clusters per batch, a cluster contributes at most $\lceil B/k \rceil$ rows: 128
 on the production graph ($B = 2{,}048$, $k = 16$). The scheduler fills each batch from the fullest clusters up to the
 cap. A window whose largest cluster holds more rows than the cap can place in its batches cannot be scheduled exactly.

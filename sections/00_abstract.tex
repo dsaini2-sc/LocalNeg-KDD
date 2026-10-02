@@ -12,6 +12,6 @@ training itself. At full scale, \ours{} raises macro recall@10 by 18\% and recal
 on 9\% fewer GPU-hours than random batching. In a ten-day online A/B test, the deployed model increased new friends
 made with bidirectional communication by 2.09\%. Concentrated batches can also fail. On Collab, Citation2 and
 LiveJournal, uncapped clustered batching reaches batches drawn from one or two clusters, and Collab Hits@50 falls from
-53.6 to 16--19. A per-cluster row cap prevents the collapse in every seed and ends ahead of random training on each
+53.6 to 18.8. Our per-cluster row cap, \rowcap{}, prevents the collapse in every seed and ends ahead of random training on each
 benchmark's own metric. The concentration of the uncapped plan shows in advance whether a graph needs the cap.
 \end{abstract}
