@@ -12,10 +12,10 @@ neighbourhood must be sampled and encoded.
 \head{Challenges in negative mining} Industry practice offers two ways to make negatives harder than random users, and
 neither works well on our graph. The first is logged exposures: suggested users who were not
 added~\cite{huang2020ebr}. Exposures are hard. To a model trained with random negatives, a suggestion the user passed
-over sits closer to the user than the user's own future friends do. Yet adding exposures as negatives to an otherwise
-identical run lowers macro recall@1000 by 0.28 points, with every ranking metric down. The harm comes from pairing:
-each user is penalised against a suggestion as close to it in the graph as its future friends, so the model learns to
-discount graph proximity. Given to other users, the same exposures gain 0.43 points (Section~\ref{sec:exposure}).
+over sits closer to the user than the user's own future friends do. Yet as negatives they hurt: adding them lowers macro
+recall@1000 by 0.28 points. The same exposures cut both ways. Used against the user they were shown to, they cost 0.49
+points; given to other users, they gain 0.43. A user's own suggestion is as close to it in the graph as its future
+friends, so penalising it teaches the model to discount graph proximity (Section~\ref{sec:exposure}).
 The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
 means re-embedding candidates as the model changes. At our scale this is expensive. From our measured inference rate
 and step times, refreshing an index of all users once per epoch and encoding one mined negative per training row would
