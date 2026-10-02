@@ -37,6 +37,16 @@ Table~\ref{tab:app-exposure} gives every metric of the three exposure arms. The 
 stored exposure pairs coincide with requests accepted inside the training window, and 0.514\% are accepted in the following seven days.
 \input{tables/app_exposure}
 
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=0.6\textwidth]{figures/public}
+  \caption{\rowcap{} prevents the collapse on every public graph. Each benchmark's metric at the end of mining for
+  random batching, uncapped clustered batching and \ours{}, both with the cached clustering signal; mean over three
+  seeds, bars show one standard deviation. Collab: Hits@50; Citation2 and LiveJournal: full-corpus MRR $\times 100$.}
+  \Description{Three bar charts. Collab Hits@50: random 53.6, uncapped 18.8, LocalNeg 54.8. Citation2 MRR: 7.6, 4.4,
+  7.8. LiveJournal MRR: 15.2, 11.5, 15.7.}
+  \label{fig:app-public}
+\end{figure*}
 \subsection{Embedding locality}
 Table~\ref{tab:app-locality} gives the full-scale locality measurement, averaged over the two random-negative models and including the users' stored
 exposure negatives, and the same measurement on the sampled graph for one model at
@@ -44,7 +54,7 @@ three stages of training.
 \input{tables/app_locality}
 
 \subsection{Public graphs: every run}
-Table~\ref{tab:app-public} lists every public run per seed at the end of mining and after the 128 common random updates.
+Figure~\ref{fig:app-public} summarises the collapse and the cap. Table~\ref{tab:app-public} lists every public run per seed at the end of mining and after the 128 common random updates.
 \input{tables/app_public}
 
 \subsection{Cap feasibility}
