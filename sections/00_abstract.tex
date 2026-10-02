@@ -1,7 +1,9 @@
 \begin{abstract}
 Embedding-based friend retrieval on a billion-node social graph is trained contrastively, and its negatives decide both
 what the model learns and what training costs. The usual sources of hard negatives fall short at this scale. Logged
-exposures hurt: adding them lowers macro recall@1000 by 0.28 points, while a slot-matched random control costs nothing.
+exposures hurt: adding them lowers macro recall@1000 by 0.28 points. The harm comes from penalising each user against
+its own suggestion, which is as close to it in the graph as its future friends; given to other users, the same
+exposures help.
 Mining with the current model would cost nearly four times random training. We develop clustered-anchor batching, which
 starts from the model production already trains. Its embeddings, learned with random negatives only, are graph-local:
 one-hop neighbours average a cosine similarity of 0.70 with a user, random users 0.07. Clustering anchors on these

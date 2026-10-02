@@ -2,8 +2,9 @@
 \label{sec:lessons}
 
 \begin{itemize}
-  \item \textbf{Test exposure negatives against a slot-matched random control.} On our graph they cost 0.8\% of
-        recall@1000, and the control shows that the harm is in the exposed users, not in the added negatives.
+  \item \textbf{Do not pair an exposure with the user it was shown to.} On our graph that pairing costs 0.8\% of
+        recall@1000, because the suggestion is as graph-close as a future friend. Given to other users, the same
+        exposures help.
   \item \textbf{Look at the embeddings you already have.} A model trained with random negatives is graph-local, so
         clustering on its embeddings gives hard in-batch negatives and cheaper batches at once.
   \item \textbf{Cache the clustering signal.} The training loop already computes the embeddings the scheduler needs;

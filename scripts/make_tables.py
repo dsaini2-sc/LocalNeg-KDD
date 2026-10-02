@@ -39,12 +39,20 @@ for ep in ('mining', 'continuation'):
 table('app_public.tex', 'lllrrrrr', 'Endpoint & Graph & Method & Seed & \\recall{10} & \\recall{1000} & MRR & Official', rows,
       'Every public run, per seed (full-corpus filtered metrics and the official metric, \\%; Official = Collab Hits@50, Citation2 and LiveJournal sampled MRR).', 'tab:app-public', star=True)
 
-X = L / 'exposure-ablation/prism-evaluation/runs'   # three-seed means over the per-cell metrics behind READ-three-seeds.md
-EXP = [('No exposure negatives', ('ref_base_s1501', 'base_s1502', 'base_s1503')), ('Exposure negatives added back', ('ref_exp_s1501', 'exp_s1502', 'exp_s1503')), ('Same slots, random users', ('ctl_s1501', 'ctl_s1502', 'ctl_s1503'))]
+X = L / 'exposure-ablation/prism-evaluation/runs'; XM = L / 'exposure-ablation/mechanism/prism-evaluation/runs'   # three-seed means behind exposure-ablation/mechanism/READ.md
+EXP = [('No exposure negatives', [X / c for c in ('ref_base_s1501', 'base_s1502', 'base_s1503')]), ('Added back (historical recipe)', [X / c for c in ('ref_exp_s1501', 'exp_s1502', 'exp_s1503')]),
+       ('Same slots, random users', [X / f'ctl_s{s}' for s in (1501, 1502, 1503)]), ('Encoded, never a negative', [XM / f'none_s{s}' for s in (1501, 1502, 1503)]),
+       ('Negative for own source only', [XM / f'own_s{s}' for s in (1501, 1502, 1503)]), ('Shuffled to other sources', [XM / f'perm_s{s}' for s in (1501, 1502, 1503)])]
+xm = lambda cells, k: st.mean(pct(json.loads((c / 'ranking/ranking_metrics.json').read_text())['metrics'][k]) for c in cells)
 EK = ['macro_recall_at_1', 'macro_recall_at_10', 'macro_recall_at_100', 'macro_recall_at_500', 'macro_recall_at_1000', 'mrr_at_1000', 'ndcg_at_10']
-rows = [[n] + [f"{st.mean(pct(json.loads((X / c / 'ranking/ranking_metrics.json').read_text())['metrics'][k]) for c in cells):.4f}" for k in EK] for n, cells in EXP]
+rows = [[n] + [f"{xm(cells, k):.4f}" for k in EK] for n, cells in EXP]
 table('app_exposure.tex', 'lrrrrrrr', 'Arm & \\recall{1} & \\recall{10} & \\recall{100} & \\recall{500} & \\recall{1000} & MRR & nDCG@10', rows,
-      'Exposure negatives, all metrics, mean over three seeds (macro, \\%).', 'tab:app-exposure', star=True)
+      'Exposure negatives, every arm and metric, mean over three seeds (macro, \\%).', 'tab:app-exposure', star=True)
+base = xm(EXP[0][1], 'macro_recall_at_1000')
+rows = [[n] + [f"{xm(cells, k):.2f}" for k in ('macro_recall_at_10', 'macro_recall_at_100', 'macro_recall_at_1000', 'mrr_at_1000')] + ['--' if i == 0 else f"{xm(cells, 'macro_recall_at_1000') - base:+.2f}".replace('-', '$-$')] for i, (n, cells) in enumerate(EXP)]
+table('exposure.tex', 'lrrrrr', 'Exposure target & \\recall{10} & \\recall{100} & \\recall{1000} & MRR & $\\Delta$', rows,
+      'Exposure negatives hurt only as negatives for their own source; given to other users, they help. Macro recall (\\%) on the frozen production panel, mean over three seeds; $\\Delta$: recall@1000 minus no exposure negatives, points. Every arm trains the same recipe and differs only in what the stored exposure target of each source does.', 'tab:exposure')
+(OUT / 'exposure.tex').write_text('% three-seed means (seeds 1501-1503); exposure-ablation/mechanism/READ.md\n' + (OUT / 'exposure.tex').read_text())
 
 loc = list(csv.DictReader(open(L / 'embedding-locality-r1/metrics.csv')))
 lab = {'hop1': '1 hop', 'hop2': '2 hops', 'hop3': '3 hops', 'random': 'Random user', 'positive': 'Future friend'}

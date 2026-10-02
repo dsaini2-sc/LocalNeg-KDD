@@ -1,5 +1,5 @@
 \begin{table*}[t]
-  \caption{Exposure negatives, all metrics, mean over three seeds (macro, \%).}
+  \caption{Exposure negatives, every arm and metric, mean over three seeds (macro, \%).}
   \label{tab:app-exposure}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrrrrrr}
@@ -7,8 +7,11 @@
     Arm & \recall{1} & \recall{10} & \recall{100} & \recall{500} & \recall{1000} & MRR & nDCG@10 \\
     \midrule
 No exposure negatives & 0.4032 & 2.5977 & 11.8689 & 26.0633 & 34.0746 & 2.3256 & 1.5689 \\
-Exposure negatives added back & 0.4002 & 2.5693 & 11.7123 & 25.7758 & 33.7926 & 2.2910 & 1.5500 \\
+Added back (historical recipe) & 0.4002 & 2.5693 & 11.7123 & 25.7758 & 33.7926 & 2.2910 & 1.5500 \\
 Same slots, random users & 0.4021 & 2.5945 & 11.8685 & 26.0769 & 34.0890 & 2.3270 & 1.5678 \\
+Encoded, never a negative & 0.4013 & 2.5897 & 11.8640 & 26.0809 & 34.0905 & 2.3289 & 1.5661 \\
+Negative for own source only & 0.3898 & 2.5169 & 11.5574 & 25.5753 & 33.5896 & 2.2502 & 1.5168 \\
+Shuffled to other sources & 0.4168 & 2.6986 & 12.2190 & 26.5071 & 34.5021 & 2.3899 & 1.6254 \\
     \bottomrule
   \end{tabular}
 \end{table*}

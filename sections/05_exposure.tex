@@ -14,28 +14,10 @@ averages 0.69, against 0.61 for the users' own future friends and 0.70 for their
 user, the exposure is 0.05 closer than the same user's future friends. Most exposures are friends of friends: 59\% lie
 exactly two hops away, where the similarity averages 0.77. To the model, an exposure looks like a positive. That makes
 it a hard negative. It also suggests how it could hurt: pushing a user away from users that look like its positives can
-push it away from the positives as well.
+push it away from the positives as well, which is what we find below.
 \evidence{embedding-locality-r1/exposure-probe/READ.md}
 
-\begin{table}[t]
-  \caption{Exposure negatives lower every metric, and random users in the same slots change nothing. Macro recall
-  (\%) on the frozen production panel; the control fills the same candidate slots with uniform random users. Mean over
-  three seeds; re-evaluating one checkpoint moves every metric by at most 0.002 points.}
-  \label{tab:exposure}
-  \footnotesize\setlength{\tabcolsep}{4pt}
-  \begin{tabular}{lrrrr}
-    \toprule
-    Arm & \recall{10} & \recall{100} & \recall{1000} & MRR \\
-    \midrule
-    None & 2.598 & 11.869 & 34.075 & 2.326 \\
-    Exposures added back & 2.569 & 11.712 & 33.793 & 2.291 \\
-    Same slots, random & 2.594 & 11.869 & 34.089 & 2.327 \\
-    \midrule
-    Added back $-$ random control & $-$0.025 & $-$0.156 & $-$0.296 & $-$0.036 \\
-    Random control $-$ none & $-$0.003 & 0.000 & +0.014 & +0.001 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
+\input{tables/exposure}
 
 \head{Effect} Adding the stored exposures back to an otherwise identical training run lowers macro recall@1000 from
 34.07\% to 33.79\%, a relative loss of 0.8\%. Every cutoff and ranking metric falls with it (Table~\ref{tab:exposure}).
@@ -43,19 +25,26 @@ The production recipe had already dropped exposure negatives, after removing the
 on an older snapshot of the graph. A variant that also dropped them before sampling gained 0.93\%. The harm sits where
 the exposures are. In a 1-in-1{,}000 sample of queries, those that own an exposure label lose 0.72 points in the
 add-back model, and the others gain 0.04.
-% Three-seed means (seeds 1501-1503) over the per-cell metrics behind exposure-ablation/READ-three-seeds.md.
 \evidence{exposure-ablation/READ-three-seeds.md; HANDOFF-EXPOSURE-NEGATIVES-2026-09-27.md; prism-evaluation/PLATFORM-CHECK.md}
 
-\head{Which users, not how many} Adding exposures changes two things at once. Each batch gets more negatives, and
-those negatives are particular users. The control separates the two. It keeps every exposure slot, at the same
-positions and shared with the same queries, and fills it with a uniform random user instead. The control matches the
-baseline at every cutoff, within 0.015 points, so extra negative pressure and the slot structure cost nothing. The
-whole loss, 0.30 points of recall@1000 against the control, is carried by the identity of the exposed users.
+\head{Where the harm comes from} An exposure negative does three things at once. It is sampled and encoded, and counted
+in the frequency correction. It is a negative for its own source. And, like every candidate in the batch, it is a
+negative for the batch's other queries. Four more arms separate these (Table~\ref{tab:exposure}). Filling the slots
+with random users changes nothing, so extra negative pressure is not the cause. Encoding the exposures without using
+them as negatives changes nothing either. Making each exposure a negative for its own source only costs 0.49 points,
+more than the full recipe. Using it also as a negative for the other queries gives back 0.20. Finally, we give each source
+another source's exposure instead of its own. The loss turns into a gain: 0.43 points of recall@1000 over no exposure
+negatives, with gains at every cutoff. The whole harm lies in pairing each exposure with the user it was shown to.
+% Three-seed means (seeds 1501-1503); decomposition intervals in exposure-ablation/mechanism/READ.md.
+\evidence{exposure-ablation/mechanism/READ.md, MECHANISM.md, mechanism.json}
 
-The identity effect still bundles several properties of those users, and we do not separate them here. Some exposures
-are not negatives at all. Of the stored exposure pairs, 0.51\% coincide with requests accepted within the training
-window, and another 0.51\% are accepted in the following seven days. Exposed users also come from the production
-candidate distribution. Unlike the random substitutes, they sit close to the user (see above), tend to be popular,
-recur across batches, and receive a different frequency correction in the loss. What the control rules out is the
-explanation practitioners usually reach for, that exposures hurt only because they add negatives.
-\evidence{exposure-ablation/CONTROL-DESIGN.md; LABEL-AUDIT.md; audits-20260925/READ.md}
+\head{Why the pairing hurts} A stored exposure is as close to its source in the graph as a future friend is. Half of
+the pairs share a mutual friend, and they average 4.1 common friends; (query, future friend) pairs share one 36\% of
+the time and average 4.3. Shuffled pairs almost never share one (0.08\%). Penalising a user against such a suggestion
+teaches the model that graph closeness is not evidence of friendship, the very signal retrieval relies on. The loss
+follows graph closeness accordingly. In a sample of 1.22M future friendships, the own-source penalty costs 1.8 to 1.9
+points of recall@1000 for future friends with 2 to 9 mutual friends, and 0.4 for those with none. At recall@10, future
+friends with no mutual friend lose nothing. Few exposures are positives in disguise: 0.51\% of stored exposure pairs
+coincide with requests accepted within the training window, and another 0.51\% are accepted in the following seven
+days. Given to other users, the same exposures are hard negatives without that contradiction, and they help.
+\evidence{exposure-ablation/why/proximity.py, PROXIMITY-RANKS.md; LABEL-AUDIT.md}

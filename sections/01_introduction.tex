@@ -13,7 +13,9 @@ neighbourhood must be sampled and encoded.
 neither works well on our graph. The first is logged exposures: suggested users who were not
 added~\cite{huang2020ebr}. Exposures are hard. To a model trained with random negatives, a suggestion the user passed
 over sits closer to the user than the user's own future friends do. Yet adding exposures as negatives to an otherwise
-identical run lowers macro recall@1000 by 0.28 points, with every ranking metric down (Section~\ref{sec:exposure}).
+identical run lowers macro recall@1000 by 0.28 points, with every ranking metric down. The harm comes from pairing:
+each user is penalised against a suggestion as close to it in the graph as its future friends, so the model learns to
+discount graph proximity. Given to other users, the same exposures gain 0.43 points (Section~\ref{sec:exposure}).
 The second way is to mine negatives with the current model~\cite{xiong2021ance}, which
 means re-embedding candidates as the model changes. At our scale this is expensive. From our measured inference rate
 and step times, refreshing an index of all users once per epoch and encoding one mined negative per training row would
@@ -58,7 +60,8 @@ positives per user. There the cap is neutral, and the deployed model runs with i
   \item A measurement on a billion-node social graph: embeddings trained with random negatives are graph-local. This
         makes embedding-clustered batches both harder and cheaper to train on.
   \item Evidence that exposure negatives, the conventional industry source of hard negatives, hurt retrieval on this
-        graph. A slot-matched random control shows that the harm lies in the identity of the exposed users.
+        graph, and why: penalising each user against its own graph-close suggestion teaches the model to discount graph
+        proximity. Given to other users, the same exposures gain 0.43 points of recall@1000.
   \item Clustered-anchor mining with a cached clustering signal. Over random batching at full scale, it gains 18--19\%
         relative macro recall@10 and 5\% at recall@1000, at 9--10\% lower training cost.
   \item An online A/B test of the deployed model: +2.09\% new friends made with bidirectional communication and

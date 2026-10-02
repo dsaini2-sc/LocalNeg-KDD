@@ -10,8 +10,8 @@ ones~\cite{huang2020ebr}. The second is mining with the model itself. Dense text
 approximate-nearest-neighbour index that is periodically rebuilt~\cite{xiong2021ance,karpukhin2020dpr}, and has to
 filter the false negatives such mining brings in~\cite{qu2021rocketqa}. PinSage draws hard negatives from
 personalised-PageRank neighbourhoods with a curriculum~\cite{ying2018graph}. Our exposure result is the blended case on
-a friend graph. Exposures added to random negatives still hurt, and a slot-matched random control shows that the harm
-lies in which users they are, not in the added negatives.
+a friend graph. Exposures added to random negatives still hurt, and the harm lies in pairing each exposure with its own
+source, not in the added negatives or in who the exposed users are.
 
 \head{Batch construction as negative mining} Composing batches so that in-batch negatives are hard is an established
 alternative to mining them per example. TAS-Balanced clusters queries by topic and samples each batch from one

@@ -5,6 +5,6 @@ A retrieval model trained with random negatives already organises users by graph
 embeddings turns that organisation into hard negatives and cheaper training. On a billion-node friend graph, cached
 clustered batching improves macro recall@1000 by 1.6 points at 9--10\% lower training cost. The deployed model
 improved new friends made with bidirectional communication by 2.09\% online. The conventional alternative, exposure
-negatives, hurts. The same concentration that makes clustered batches useful makes models forget other regions when
+negatives, hurts when each is paired with its own user, and helps when given to others. The same concentration that makes clustered batches useful makes models forget other regions when
 positive supply is skewed. A per-cluster row cap prevents it on three public graphs, and a simple concentration
 statistic tells when it is needed.
