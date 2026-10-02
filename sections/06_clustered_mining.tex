@@ -6,10 +6,27 @@ that a user's graph neighbours look like positives to the model. \ours{} turns b
 signal. If a batch is built from a few clusters of similar users, every anchor's in-batch negatives come from its own
 region, and the batch is cheaper to encode.
 
+\begin{figure*}[t]
+  \centering
+  \input{figures/localneg}
+  \caption{\ours{} plans batches from embeddings that training already computes. (a) While the GPU trains window
+  $t$, a CPU thread clusters the anchors of window $t{+}1$ on a snapshot of the cached query embeddings and packs them
+  into batches of 16 clusters; \rowcap{} bounds each cluster's rows. (b) A clustered batch draws its anchors from a few
+  graph regions, so in-batch negatives are nearby users and the sampled subgraph is smaller. (c) Re-embedding the next
+  window puts an inference pass on the critical path; \ours{} keeps the faster clustered steps without it. Bar widths
+  follow Table~\ref{tab:cost}.}
+  \Description{Diagram of the training loop. The GPU trains on a window of 50 updates and writes query embeddings to a
+  cache; a CPU thread clusters the next window from a snapshot and packs batches of 16 clusters with a row cap; the GPU
+  then trains the next window. A second panel contrasts scattered random batches with clustered batches. A third panel
+  shows GPU time per window: random training, fresh re-embedding with an inference block before each window, and
+  LocalNeg with shorter windows and clustering on the CPU.}
+  \label{fig:localneg}
+\end{figure*}
+
 \subsection{Clustered-anchor batching}
 \label{sec:method:batching}
 
-Training proceeds in windows of 50 updates. At the start of a window, each worker takes the positive rows it will
+Training proceeds in windows of 50 updates (Figure~\ref{fig:localneg}a). At the start of a window, each worker takes the positive rows it will
 train on in that window: 102{,}400 rows at 2{,}048 rows per batch. It clusters their distinct anchors by query
 embedding into balanced clusters of about 64 anchors with recursive two-means. It then packs whole clusters, drawn in
 random order, into batches, targeting 16 clusters per batch. All rows of an anchor stay in its cluster, so an anchor's
