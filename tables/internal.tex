@@ -1,6 +1,6 @@
-% mean of seeds 1504, 1505, 1506; seeds per cell (arm: e1/e2/e3): random: 3/3/3; fresh_uncapped: 3/3/3; async_uncapped: 3/3/3; fresh_capped: 3/3/3; async_capped: 3/3/3
+% mean of seeds 1504, 1505, 1506; seeds per cell (arm: e1/e2/e3): random: 3/3/3; async_capped: 3/3/3; fresh_capped: 3/3/3; async_uncapped: 3/3/3; fresh_uncapped: 3/3/3
 \begin{table}[t]
-  \caption{Clustered batching beats random batching at every epoch. Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most 0.1 points in every cell. All arms share a 200-update random prefix; epochs count the updates after it.}
+  \caption{\ours{} beats random batching at every epoch. Macro recall@1000 (\%) on the frozen production panel (38.96M queries, 85.3M candidates), mean over three seeds; the standard deviation across seeds is at most 0.1 points in every cell. \ours{} uses the cached clustering signal and the row cap; the other rows change one or both. All arms share a 200-update random prefix; epochs count the updates after it.}
   \label{tab:internal}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrr}
@@ -8,10 +8,10 @@
     Method & 1 epoch & 2 epochs & 3 epochs \\
     \midrule
 Random & 32.19 & 34.10 & 34.80 \\
-Fresh clustered & 34.27 & 35.88 & 36.48 \\
-Cached clustered & 33.99 & 35.78 & 36.39 \\
-Fresh clustered, capped & 34.01 & 35.72 & 36.50 \\
-Cached clustered, capped & 33.77 & 35.72 & 36.44 \\
+\ours{} & 33.77 & 35.72 & 36.44 \\
+Fresh signal & 34.01 & 35.72 & 36.50 \\
+Uncapped & 33.99 & 35.78 & 36.39 \\
+Fresh signal, uncapped & 34.27 & 35.88 & 36.48 \\
     \bottomrule
   \end{tabular}
 \end{table}

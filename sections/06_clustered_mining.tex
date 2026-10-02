@@ -2,7 +2,7 @@
 \label{sec:method}
 
 Section~\ref{sec:locality} shows that users who are close in embedding space are close in the graph. It also shows
-that a user's graph neighbours look like positives to the model. Clustered batching turns both facts into a training
+that a user's graph neighbours look like positives to the model. \ours{} turns both facts into a training
 signal. If a batch is built from a few clusters of similar users, every anchor's in-batch negatives come from its own
 region, and the batch is cheaper to encode.
 
@@ -14,7 +14,8 @@ train on in that window: 102{,}400 rows at 2{,}048 rows per batch. It clusters t
 embedding into balanced clusters of about 64 anchors with recursive two-means. It then packs whole clusters, drawn in
 random order, into batches, targeting 16 clusters per batch. All rows of an anchor stay in its cluster, so an anchor's
 positives train together. Random negatives are kept (512 per worker, 8{,}192 per step), as is the frequency correction
-of the loss. The first 200 updates of every run use random batches. Clustering starts from that shared prefix model,
+of the loss. A per-cluster row cap bounds the rows any one cluster contributes to a batch (Section~\ref{sec:capping}).
+The first 200 updates of every run use random batches. Clustering starts from that shared prefix model,
 and every arm, random included, continues from the same prefix checkpoint.
 
 \subsection{A cached clustering signal}
@@ -31,32 +32,31 @@ uses cached ones. A single inference pass with the prefix model fills the cache 
 \label{sec:method:cost}
 
 \begin{table}[t]
-  \caption{Cached clustered training costs 9--10\% less GPU time than random training, and fresh clustering 11\%
-  more. Full scale, the same 15{,}479 updates on 16 A100 GPUs, mean over three seeds; the cached column spans its
-  uncapped and capped arms. Mining and bootstrap inference are charged to the method; checkpoint I/O and evaluation
-  are excluded.}
+  \caption{\ours{} costs 9\% less GPU time than random training; clustering on a fresh signal costs 11\% more. Full
+  scale, the same 15{,}479 updates on 16 A100 GPUs, mean over three seeds; the fresh column is the uncapped fresh arm.
+  Mining and bootstrap inference are charged to the method; checkpoint I/O and evaluation are excluded.}
   \label{tab:cost}
   \footnotesize\setlength{\tabcolsep}{4pt}
   \begin{tabular}{lrrr}
     \toprule
-    & Random & Fresh clust. & Cached clust. \\
+    & Random & Fresh signal & \ours{} \\
     \midrule
-    Seconds per training step & 4.80 & 4.10 & 3.98--4.01 \\
-    Exposed mining, s per run & 26 & 19{,}221 & 41--43 \\
+    Seconds per training step & 4.80 & 4.10 & 4.01 \\
+    Exposed mining, s per run & 26 & 19{,}221 & 43 \\
     Bootstrap inference, s & 0 & 0 & 5{,}459 \\
-    GPU-hours & 330 & 368 & 299--301 \\
-    Relative to random & -- & +11.3\% & $-$9.6 to $-$9.0\% \\
+    GPU-hours & 330 & 368 & 301 \\
+    Relative to random & -- & +11.3\% & $-$9.0\% \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Clustered batches are cheaper to encode (Section~\ref{sec:locality:cost}), so clustered training steps are 15--17\%
-faster than random ones. An update takes 4.80\,s with random batches, 4.10\,s with fresh clustering and
-3.98--4.01\,s with cached clustering (Table~\ref{tab:cost}). Fresh clustering gives the saving back and more. Its
-inference pass costs 57\,s every 50 updates, 23\% of its training loop with the clustering, so it costs 11\% more GPU
-time than random training. The cached version exposes about 40\,s of planning over the whole run, under 0.1\% of loop
-time. We also charge it the one-time bootstrap pass of 5{,}459\,s. It still costs 9--10\% less GPU time than random
-training, and 16--17\% less without the bootstrap. The bootstrap is 8\% of a three-epoch run and amortises with longer
+Clustered batches are cheaper to encode (Section~\ref{sec:locality:cost}), so \ours{}'s training steps are 16\% faster
+than random ones: an update takes 4.01\,s against 4.80\,s (Table~\ref{tab:cost}). Clustering on a fresh signal
+gives the saving back and more. Its steps take 4.10\,s, but its
+inference pass costs 62\,s every 50 updates, 23\% of its training loop with the clustering, so it costs 11\% more GPU
+time than random training. \ours{} exposes 43\,s of planning over the whole run, under 0.1\% of loop
+time. We also charge it the one-time bootstrap pass of 5{,}459\,s. It still costs 9\% less GPU time than random
+training, and 16\% less without the bootstrap. The bootstrap is 8\% of a three-epoch run and amortises with longer
 training. Full-state checkpoints are larger, because the 2.7\,GB per-worker cache is part of the resumable state
 (101\,s vs.\ 38\,s per save).
 % Three-seed cost accounting (seeds 1504-1506); seed 1506 alone is the earlier full-scale-cached-mining/analysis-overhead/READ.md.
@@ -67,11 +67,10 @@ training. Full-state checkpoints are larger, because the 2.7\,GB per-worker cach
 
 \input{tables/internal}
 
-Clustered batching improves retrieval at every point of training (Table~\ref{tab:internal}). After three epochs,
-random training reaches 34.80\% macro recall@1000 and clustered training 36.39--36.50\%. That is a gain of 1.6--1.7
-points, or 4.6--4.9\% relative. The gain is present from the first epoch (1.6--2.1 points) and does not close as
-training continues. The cached clustering signal costs almost nothing in quality: cached and fresh clustering differ by
-at most 0.28 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within
+\ours{} improves retrieval at every point of training (Table~\ref{tab:internal}). After three epochs, random
+training reaches 34.80\% macro recall@1000 and \ours{} 36.44\%. That is a gain of 1.6 points, or 4.7\% relative.
+The gain is present from the first epoch (1.6 points) and does not close as training continues. The cached clustering
+signal costs almost nothing in quality: a fresh signal differs from it by at most 0.28 points at any point. Capping, discussed in Section~\ref{sec:capping}, is neutral on this graph, within
 0.26 points of the uncapped arm at every point.
 We report the final model of every run; no checkpoint is selected.
 % Three-seed means (seeds 1504-1506, every cell complete 2026-09-30). The numbers quoted here, in the abstract, the introduction, the
@@ -81,7 +80,7 @@ We report the final model of every run; no checkpoint is selected.
 \subsection{Online A/B test}
 \label{sec:method:online}
 
-We deployed the cached, capped variant, trained without exposure negatives. We compared it with the production model,
+We deployed \ours{}, trained without exposure negatives. We compared it with the production model,
 trained with random and exposure negatives, in a ten-day online A/B test of friend recommendation (September 17--26,
 2026).
 \abtodo{Traffic share, number of users, which retrieval stage the embeddings serve.}

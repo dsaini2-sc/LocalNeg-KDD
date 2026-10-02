@@ -29,6 +29,6 @@ per-cluster cap prevents and a concentration statistic predicts.
 \head{Graph locality and training efficiency} Sampling-based graph neural networks encode each node from a sampled
 neighbourhood~\cite{hamilton2017inductive,ying2018graph}, so the cost of a batch depends on how much its neighbourhoods
 overlap. Cluster-GCN exploits this by building batches from graph partitions~\cite{chiang2019clustergcn}.
-Clustered-anchor batching obtains a similar locality without a partitioner, from the model's own embeddings. It applies
+\ours{} obtains a similar locality without a partitioner, from the model's own embeddings. It applies
 that locality to supervision rows rather than nodes. The regional forgetting we observe is an instance of catastrophic
 interference under non-stationary training data~\cite{mccloskey1989catastrophic}, here created by the batch scheduler.

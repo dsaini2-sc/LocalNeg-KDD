@@ -29,7 +29,7 @@ bootstrap measured, 16{,}632 users per second on 16 A100s: 858 GPU-hours over th
 sources, raised trainer wall time by 15.6\%, and a linear model of step time in sampled nodes fitted to the four full-scale arms gives
 14--31\% for the footprint of one negative. The steps therefore cost about 419 GPU-hours against random batching's 330, and the batches
 are random, so none of the clustered-step saving applies. In total that is about 1{,}280 GPU-hours, 3.9 times random training;
-cached clustered batching uses 299--301, 0.90--0.91 times. Index build,
+\ours{} uses 301, 0.91 times. Index build,
 search and hosting are excluded, and more frequent refreshes, as ANCE uses, raise the re-embedding cost proportionally.
 
 \subsection{Exposure negatives}

@@ -4,12 +4,12 @@ what the model learns and what training costs. The usual sources of hard negativ
 exposures hurt: adding them lowers macro recall@1000 by 0.28 points. The harm comes from penalising each user against
 its own suggestion, which is as close to it in the graph as its future friends; given to other users, the same
 exposures help.
-Mining with the current model would cost nearly four times random training. We develop clustered-anchor batching, which
+Mining with the current model would cost nearly four times random training. We develop \ours{}, clustered-anchor batching that
 starts from the model production already trains. Its embeddings, learned with random negatives only, are graph-local:
 one-hop neighbours average a cosine similarity of 0.70 with a user, random users 0.07. Clustering anchors on these
 embeddings yields hard in-batch negatives and batches that sample 35\% fewer nodes. We cache the clustering signal from
-training itself. At full scale, cached clustered batching raises macro recall@10 by 18--19\% and recall@1000 by 5\%,
-on 9--10\% fewer GPU-hours than random batching. In a ten-day online A/B test, the deployed model increased new friends
+training itself. At full scale, \ours{} raises macro recall@10 by 18\% and recall@1000 by 5\%,
+on 9\% fewer GPU-hours than random batching. In a ten-day online A/B test, the deployed model increased new friends
 made with bidirectional communication by 2.09\%. Concentrated batches can also fail. On Collab, Citation2 and
 LiveJournal, uncapped clustered batching reaches batches drawn from one or two clusters, and Collab Hits@50 falls from
 53.6 to 16--19. A per-cluster row cap prevents the collapse in every seed and ends ahead of random training on each

@@ -30,7 +30,7 @@ neighbours average a cosine similarity of 0.70 with the user, three-hop users 0.
 A user's neighbours are even closer to the user than the friends the user will add next. This property has two consequences that we leverage for more accurate and faster training.
 First, grouping users by embedding groups them by graph region, so each user's in-batch negatives come from its own
 neighbourhood and are hard. Second, grouped users share neighbours, so the batch's sampled subgraph shrinks. Clustered
-batches sample 35\% fewer nodes, and a clustered training step is 15--17\% faster at full scale
+batches sample 35\% fewer nodes, and a clustered training step is 16\% faster at full scale
 (Section~\ref{sec:locality}).
 
 \head{Clustered-anchor batching} Using clustered anchors to create batches turns this property into a training signal;
@@ -62,8 +62,9 @@ positives per user. There the cap is neutral, and the deployed model runs with i
   \item Evidence that exposure negatives, the conventional industry source of hard negatives, hurt retrieval on this
         graph, and why: penalising each user against its own graph-close suggestion teaches the model to discount graph
         proximity. Given to other users, the same exposures gain 0.43 points of recall@1000.
-  \item Clustered-anchor mining with a cached clustering signal. Over random batching at full scale, it gains 18--19\%
-        relative macro recall@10 and 5\% at recall@1000, at 9--10\% lower training cost.
+  \item \ours{}: clustered-anchor batching with a cached clustering signal and a per-cluster row cap. Over random
+        batching at full scale, it gains 18\% relative macro recall@10 and 5\% at recall@1000, at 9\% lower training
+        cost.
   \item An online A/B test of the deployed model: +2.09\% new friends made with bidirectional communication and
         +1.01\% new friends made.
   \item A failure mode of clustered mining, regional forgetting under concentrated batches. A per-cluster row cap
